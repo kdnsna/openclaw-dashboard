@@ -86,6 +86,21 @@ npm start
 - Tailscale
 - 受保护的反向代理 / Tunnel
 
+#### Tailscale 推荐方案
+如果运行监控台的机器和手机都登录到了同一个 Tailscale 网络，可直接通过 Tailscale IP 访问监控台。
+
+示例：
+```text
+http://100.x.y.z:3210
+```
+
+使用步骤：
+1. 在运行监控台的机器上安装并登录 Tailscale
+2. 在手机上安装并登录同一个 Tailscale 账号
+3. 确认两端均已连接
+4. 在手机浏览器中打开对应的 Tailscale IP 地址
+5. 如有需要，可将页面添加到主屏幕作为 PWA 使用
+
 详见：`SECURITY.md`
 
 ## 项目结构
