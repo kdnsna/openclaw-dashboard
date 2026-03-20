@@ -1,5 +1,6 @@
 import { useClock } from '../hooks/useClock';
 import type { DashboardMetrics, ChannelHealth } from '../lib/types';
+import { APP_VERSION } from '../lib/appVersion';
 import { HeaderStatusGroup } from './HeaderStatusGroup';
 
 interface HeaderProps {
