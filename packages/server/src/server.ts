@@ -74,8 +74,8 @@ process.on('unhandledRejection', (err) => console.error('[rejection]', (err as E
 
 // ── Start ──────────────────────────────────────────────────
 
-server.listen(config.port, '127.0.0.1', () => {
-  console.log(`[dashboard] 🦐 http://127.0.0.1:${config.port}`);
+server.listen(config.port, '0.0.0.0', () => {
+  console.log(`[dashboard] 🦐 http://0.0.0.0:${config.port}`);
   gw.connect();
   tracker.start();
   setTimeout(updateLoop, STARTUP_DELAY_MS);
