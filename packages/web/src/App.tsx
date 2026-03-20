@@ -3,6 +3,7 @@ import { Header } from './components/Header';
 import { TokenUsageCard } from './components/TokenUsageCard';
 import { TodayCard } from './components/TodayCard';
 import { CostBreakdownCard } from './components/CostBreakdownCard';
+import { LifetimeLedgerCard } from './components/LifetimeLedgerCard';
 import { SessionsCard } from './components/SessionsCard';
 import { TaskLogCard } from './components/TaskLogCard';
 import { ActivityCard } from './components/ActivityCard';
@@ -23,6 +24,7 @@ export function App() {
           <TokenUsageCard usageCost={data?.usageCost} />
           <TodayCard usageCost={data?.usageCost} hourlyActivity={activity?.hourlyActivity} />
           <CostBreakdownCard totals={data?.usageCost?.totals} />
+          <LifetimeLedgerCard ledger={data?.ledger} />
           <SessionsCard sessions={sessions} />
           <TaskLogCard tasks={activity?.tasks ?? []} />
           <ActivityCard recent={activity?.recent ?? []} />

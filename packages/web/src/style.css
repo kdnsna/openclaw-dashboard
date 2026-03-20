@@ -440,6 +440,34 @@ body {
   letter-spacing: 1px;
 }
 
+.ledger-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-top: 8px;
+}
+
+.ledger-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 4px 6px;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.02);
+  font-size: 0.58em;
+}
+
+.ledger-key {
+  color: var(--text2);
+}
+
+.ledger-value {
+  color: var(--text);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
 /* ── Hourly Heatmap ─────────────────────────────────────── */
 
 .hourly-heat {
@@ -866,7 +894,7 @@ body {
 @media (max-width: 1200px) {
   .grid {
     grid-template-columns: 1fr 1fr;
-    grid-template-rows: auto auto 1fr;
+    grid-template-rows: auto auto auto 1fr;
   }
 }
 

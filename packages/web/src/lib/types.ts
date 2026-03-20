@@ -7,8 +7,23 @@ export interface DashboardMetrics {
   status?: StatusData;
   presence?: PresenceItem[];
   usageCost?: UsageCostData;
+  ledger?: LifetimeLedger;
   system: SystemSnapshot;
   activity: ActivitySnapshot;
+}
+
+export interface LifetimeLedger {
+  sessionCount: number;
+  assistantTurns: number;
+  inputTokens: number;
+  outputTokens: number;
+  totalTokens: number;
+  cacheReadTokens: number;
+  cacheWriteTokens: number;
+  totalCost: number;
+  firstSeenAt: string | null;
+  lastSeenAt: string | null;
+  activeDays: number;
 }
 
 export interface SystemSnapshot {

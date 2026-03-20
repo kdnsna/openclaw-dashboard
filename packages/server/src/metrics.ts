@@ -2,6 +2,7 @@ import os from 'node:os';
 import { GatewayClient } from './gateway-client.js';
 import { ActivityTracker } from './activity-tracker.js';
 import type { ActivitySnapshot } from './activity-tracker.js';
+import { collectLifetimeLedger, type LifetimeLedger } from './ledger.js';
 
 export interface SystemSnapshot {
   cpuPercent?: number;
@@ -15,6 +16,7 @@ export interface DashboardMetrics {
   status?: unknown;
   presence?: unknown;
   usageCost?: unknown;
+  ledger?: LifetimeLedger;
   system: SystemSnapshot;
   activity: ActivitySnapshot;
 }
@@ -63,6 +65,7 @@ export async function collectMetrics(gw: GatewayClient, tracker: ActivityTracker
       memPercent: sampleMemory(),
     },
     activity: await tracker.getSnapshot(),
+    ledger: collectLifetimeLedger(),
   };
 
   if (gw.connected) {
