@@ -53,7 +53,7 @@ export function Header({ data }: HeaderProps) {
       <div className="header-left">
         <span className="logo">🦞</span>
         <h1>小锤子监控台</h1>
-        <span className="version">v{status?.runtimeVersion ?? '--'}</span>
+        <span className="version">v{APP_VERSION}</span>
       </div>
       <div className="header-center">
         <div className="live-counters">

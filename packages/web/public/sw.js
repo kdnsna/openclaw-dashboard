@@ -1,4 +1,4 @@
-const CACHE_NAME = 'xiaochuizi-dashboard-v1';
+const CACHE_NAME = 'xiaochuizi-dashboard-v2';
 const APP_SHELL = ['./', './manifest.webmanifest', './icons/icon-192.svg', './icons/icon-512.svg'];
 
 self.addEventListener('install', (event) => {
@@ -15,6 +15,19 @@ self.addEventListener('fetch', (event) => {
   const { request } = event;
   if (request.method !== 'GET') return;
   if (request.url.includes('/api/') || request.url.includes('/ws')) return;
+
+  if (request.mode === 'navigate') {
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put('./', copy)).catch(() => {});
+          return response;
+        })
+        .catch(() => caches.match('./')),
+    );
+    return;
+  }
 
   event.respondWith(
     caches.match(request).then((cached) => cached || fetch(request).then((response) => {
