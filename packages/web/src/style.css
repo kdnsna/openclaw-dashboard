@@ -62,7 +62,7 @@ body {
   height: 100vh;
   max-width: 1920px;
   margin: 0 auto;
-  padding: 10px;
+  padding: calc(10px + env(safe-area-inset-top, 0px)) 10px calc(10px + env(safe-area-inset-bottom, 0px));
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -957,7 +957,79 @@ body {
     gap: 6px;
   }
 
+  .header-left {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .header h1 {
+    font-size: 1em;
+    letter-spacing: 1.5px;
+  }
+
+  .version {
+    font-size: 0.58em;
+  }
+
+  .header-center,
+  .header-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+
   .header-mid {
     display: none;
+  }
+
+  .live-counters {
+    width: 100%;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .counter-value {
+    font-size: 1em;
+  }
+
+  .clock {
+    font-size: 0.9em;
+    min-width: auto;
+  }
+
+  .card-header {
+    padding: 8px 10px;
+    font-size: 0.68em;
+  }
+
+  .card-body {
+    padding: 10px;
+  }
+
+  .metrics-row {
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .metric {
+    min-width: calc(50% - 4px);
+  }
+
+  .metric-value,
+  .stat-value {
+    font-size: 0.95em;
+  }
+
+  .task-log,
+  .activity-feed,
+  .session-list {
+    max-height: 34vh;
+  }
+
+  .footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    padding: 6px 10px;
+    font-size: 0.56em;
   }
 }

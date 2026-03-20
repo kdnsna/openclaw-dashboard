@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
+  <rect width="192" height="192" rx="38" fill="#0a0e17"/>
+  <rect x="18" y="18" width="156" height="156" rx="28" fill="#0f1520" stroke="#00f0ff" stroke-width="4"/>
+  <text x="96" y="88" text-anchor="middle" font-size="58" font-family="Arial, sans-serif">🔨</text>
+  <text x="96" y="138" text-anchor="middle" font-size="22" fill="#00f0ff" font-family="Arial, sans-serif">监控台</text>
+</svg>

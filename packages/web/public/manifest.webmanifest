@@ -1,0 +1,25 @@
+{
+  "name": "小锤子监控台",
+  "short_name": "小锤子",
+  "description": "用于查看 OpenClaw 运行状态、Token 用量和任务活动的移动端监控台。",
+  "display": "standalone",
+  "background_color": "#0a0e17",
+  "theme_color": "#0a0e17",
+  "start_url": "./",
+  "scope": "./",
+  "lang": "zh-CN",
+  "icons": [
+    {
+      "src": "./icons/icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
