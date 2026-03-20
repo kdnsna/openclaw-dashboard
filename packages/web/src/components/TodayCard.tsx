@@ -36,7 +36,7 @@ export function TodayCard({ usageCost, hourlyActivity }: TodayCardProps) {
           </div>
           <div className="stat">
             <div className="stat-value accent-yellow">{fmtTokens(today?.cacheRead)}</div>
-            <div className="stat-label">Cache Read</div>
+            <div className="stat-label">缓存读取</div>
           </div>
         </div>
         <div className="hourly-heat">

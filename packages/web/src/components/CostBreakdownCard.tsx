@@ -23,7 +23,7 @@ export function CostBreakdownCard({ totals }: CostBreakdownCardProps) {
     <div className="card">
       <div className="card-header">
         <span className="card-icon">💰</span>
-        <span className="card-title">COST BREAKDOWN</span>
+        <span className="card-title">成本拆分（人民币）</span>
       </div>
       <div className="card-body">
         <div className="cost-bars">

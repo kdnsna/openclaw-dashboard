@@ -894,7 +894,7 @@ body {
 @media (max-width: 1200px) {
   .grid {
     grid-template-columns: 1fr 1fr;
-    grid-template-rows: auto auto auto 1fr;
+    grid-template-rows: auto auto 1fr;
   }
 }
 

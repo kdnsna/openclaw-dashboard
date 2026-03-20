@@ -5,8 +5,12 @@ export function fmtTokens(n: number | null | undefined): string {
   return '' + n;
 }
 
+const USD_TO_CNY = 7.2;
+
 export function fmtCost(n: number | null | undefined): string {
-  return n == null ? '--' : '$' + n.toFixed(2);
+  if (n == null) return '--';
+  const cny = n * USD_TO_CNY;
+  return '¥' + cny.toFixed(2);
 }
 
 export function fmtPct(n: number | null | undefined): string {

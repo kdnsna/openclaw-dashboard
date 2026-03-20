@@ -23,7 +23,7 @@ export function TokenUsageCard({ usageCost }: TokenUsageCardProps) {
         <div className="metrics-row">
           <div className="metric">
             <div className="metric-value">{fmtTokens(t?.totalTokens)}</div>
-            <div className="metric-label">Total</div>
+            <div className="metric-label">总量</div>
           </div>
           <div className="metric">
             <div className="metric-value accent-green">{fmtCost(t?.totalCost)}</div>
@@ -31,11 +31,11 @@ export function TokenUsageCard({ usageCost }: TokenUsageCardProps) {
           </div>
           <div className="metric">
             <div className="metric-value accent-cyan">{fmtPct(t ? cacheRate : undefined)}</div>
-            <div className="metric-label">Cached</div>
+            <div className="metric-label">缓存命中</div>
           </div>
           <div className="metric">
             <div className="metric-value accent-purple">{fmtTokens(t?.output)}</div>
-            <div className="metric-label">Output</div>
+            <div className="metric-label">输出</div>
           </div>
         </div>
         <div className="chart-container">
@@ -45,4 +45,3 @@ export function TokenUsageCard({ usageCost }: TokenUsageCardProps) {
     </div>
   );
 }
-
