@@ -1,0 +1,16 @@
+{
+  "name": "openclaw-dashboard",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Real-time monitoring dashboard for OpenClaw",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build -w packages/web && npm run build -w packages/server",
+    "start": "node dist/server.js",
+    "dev:server": "npm run dev -w packages/server",
+    "dev:web": "npm run dev -w packages/web"
+  }
+}
