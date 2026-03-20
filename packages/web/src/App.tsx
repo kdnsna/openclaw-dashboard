@@ -20,7 +20,7 @@ export function App() {
       <div className="dashboard">
         <Header data={data} />
         <div className="grid">
-          <TokenUsageCard usageCost={data?.usageCost} />
+          <TokenUsageCard usageCost={data?.usageCost} ledger={data?.ledger} />
           <TodayCard usageCost={data?.usageCost} hourlyActivity={activity?.hourlyActivity} />
           <CostBreakdownCard totals={data?.usageCost?.totals} />
           <SessionsCard sessions={sessions} />

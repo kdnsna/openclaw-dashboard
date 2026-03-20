@@ -1,12 +1,13 @@
 import { fmtTokens, fmtCost, fmtPct } from '../lib/format';
 import { UsageChart } from './UsageChart';
-import type { UsageCostData } from '../lib/types';
+import type { UsageCostData, LifetimeLedger } from '../lib/types';
 
 interface TokenUsageCardProps {
   usageCost?: UsageCostData;
+  ledger?: LifetimeLedger;
 }
 
-export function TokenUsageCard({ usageCost }: TokenUsageCardProps) {
+export function TokenUsageCard({ usageCost, ledger }: TokenUsageCardProps) {
   const t = usageCost?.totals;
   const daily = usageCost?.daily ?? [];
 
@@ -40,6 +41,27 @@ export function TokenUsageCard({ usageCost }: TokenUsageCardProps) {
         </div>
         <div className="chart-container">
           <UsageChart daily={daily} />
+        </div>
+        <div className="mini-ledger">
+          <div className="mini-ledger-title">累计账本</div>
+          <div className="mini-ledger-grid">
+            <div className="mini-ledger-item">
+              <span className="mini-ledger-key">总成本</span>
+              <span className="mini-ledger-value accent-green">{fmtCost(ledger?.totalCost)}</span>
+            </div>
+            <div className="mini-ledger-item">
+              <span className="mini-ledger-key">总 Tokens</span>
+              <span className="mini-ledger-value accent-purple">{fmtTokens(ledger?.inputTokens != null && ledger?.outputTokens != null ? ledger.inputTokens + ledger.outputTokens : undefined)}</span>
+            </div>
+            <div className="mini-ledger-item">
+              <span className="mini-ledger-key">会话数</span>
+              <span className="mini-ledger-value">{ledger?.sessionCount ?? '--'}</span>
+            </div>
+            <div className="mini-ledger-item">
+              <span className="mini-ledger-key">累计天数</span>
+              <span className="mini-ledger-value">{ledger?.activeDays ?? '--'} 天</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
