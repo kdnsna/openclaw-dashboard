@@ -13,6 +13,20 @@
 
 ![监控屏截图](assets/screenshot.png)
 
+## 截图预览
+
+### 桌面端
+
+![桌面端截图](assets/screenshots/dashboard-desktop-home.png)
+
+### 手机端
+
+![手机端截图](assets/screenshots/dashboard-mobile-home.png)
+
+### 平板端
+
+![平板端截图](assets/screenshots/dashboard-tablet-home.png)
+
 ## 功能特性
 
 - 查看最近 30 天 Token 用量与成本
