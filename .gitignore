@@ -4,3 +4,5 @@ dist/
 .task-summary-cache.json
 .claude
 .env
+LOCAL_NOTES.md
+HUMANS.md
