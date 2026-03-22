@@ -1,4 +1,5 @@
 import { fmtTokens, timeAgo, detectChannel } from '../lib/format';
+import { getSessionMeta } from '../lib/sessionMeta';
 import type { SessionItem } from '../lib/types';
 
 interface SessionsCardProps {
@@ -28,23 +29,24 @@ export function SessionsCard({ sessions }: SessionsCardProps) {
 
 function SessionRow({ session: s }: { session: SessionItem }) {
   const ch = detectChannel(s.key);
-  const shortKey = s.key
-    .replace('agent:main:', '')
-    .replace(/:[a-f0-9-]{20,}/g, '')
-    .replace(/:\d{6,}/g, '');
+  const meta = getSessionMeta(s);
   const pct = s.percentUsed ?? 0;
   const ctxColor = pct > 70 ? '#ff3366' : pct > 40 ? '#ffcc00' : '#00f0ff';
 
   return (
     <div className="session-item">
-      <span className={`session-channel ${ch}`}>{ch}</span>
-      <span className="session-key" title={s.key}>{shortKey}</span>
-      <span className="session-tokens">{fmtTokens(s.totalTokens)}</span>
-      <div className="ctx-bar">
-        <div className="ctx-bar-fill" style={{ width: `${pct}%`, background: ctxColor }} />
+      <div className="session-main-row">
+        <span className={`session-channel ${ch}`}>{ch}</span>
+        <span className="session-key" title={s.key}>{meta.shortKey}</span>
+        <span className={`session-project session-project-${meta.level}`}>{meta.project}</span>
+        <span className="session-tokens">{fmtTokens(s.totalTokens)}</span>
+        <div className="ctx-bar">
+          <div className="ctx-bar-fill" style={{ width: `${pct}%`, background: ctxColor }} />
+        </div>
+        <span className="session-pct" style={{ color: ctxColor }}>{pct}%</span>
+        <span className="session-time">{timeAgo(s.age)}</span>
       </div>
-      <span className="session-pct" style={{ color: ctxColor }}>{pct}%</span>
-      <span className="session-time">{timeAgo(s.age)}</span>
+      <div className="session-note" title={meta.note}>{meta.note}</div>
     </div>
   );
 }

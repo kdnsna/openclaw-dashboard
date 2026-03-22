@@ -54,6 +54,8 @@ export interface SessionItem {
   totalTokens?: number;
   percentUsed?: number;
   age?: number;
+  label?: string;
+  kind?: string;
 }
 
 export interface UsageCostData {
