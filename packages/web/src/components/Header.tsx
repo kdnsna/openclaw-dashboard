@@ -17,7 +17,7 @@ export function Header({ data }: HeaderProps) {
   const sessions = status?.sessions?.recent ?? [];
 
   let healthClass = 'disconnected';
-  let healthLabel = '无数据';
+  let healthLabel = '等待数据';
   if (health) {
     healthClass = health.ok ? 'healthy' : 'degraded';
     healthLabel = health.ok ? '健康' : '降级';
@@ -52,14 +52,17 @@ export function Header({ data }: HeaderProps) {
     <header className="header">
       <div className="header-left">
         <span className="logo">🦞</span>
-        <h1>小锤子监控台</h1>
+        <div className="header-brand">
+          <h1>小锤子监控台</h1>
+          <span className="header-subtitle">桌面运行总览</span>
+        </div>
         <span className="version">v{APP_VERSION}</span>
       </div>
       <div className="header-center">
         <div className="live-counters">
           <div className="counter">
             <span className="counter-value">{stats?.messages ?? 0}</span>
-            <span className="counter-label">消息数</span>
+            <span className="counter-label">消息</span>
           </div>
           <div className="counter">
             <span className="counter-value">{stats?.toolCalls ?? 0}</span>
@@ -67,13 +70,13 @@ export function Header({ data }: HeaderProps) {
           </div>
           <div className="counter">
             <span className="counter-value">{sessions.length}</span>
-            <span className="counter-label">会话数</span>
+            <span className="counter-label">活跃会话</span>
           </div>
         </div>
       </div>
       <div className="header-mid">
-        <HeaderStatusGroup items={channelItems} emptyLabel="无通道" title="通道" />
-        <HeaderStatusGroup items={deviceItems} emptyLabel="无设备" title="设备" />
+        <HeaderStatusGroup items={channelItems} emptyLabel="暂无通道" title="通道" />
+        <HeaderStatusGroup items={deviceItems} emptyLabel="暂无设备" title="设备" />
       </div>
       <div className="header-right">
         <div className={`status-indicator ${healthClass}`}>

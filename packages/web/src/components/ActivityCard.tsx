@@ -1,4 +1,4 @@
-import { fmtTime } from '../lib/format';
+import { fmtTime, formatActivityLabel } from '../lib/format';
 import type { ActivityItem } from '../lib/types';
 
 interface ActivityCardProps {
@@ -7,16 +7,16 @@ interface ActivityCardProps {
 
 export function ActivityCard({ recent }: ActivityCardProps) {
   return (
-    <div className="card">
+    <div className="card card-activity">
       <div className="card-header">
         <span className="card-icon">⚡</span>
-        <span className="card-title">实时活动</span>
+        <span className="card-title">实时动态</span>
         <span className="badge pulse">{recent.length}</span>
       </div>
       <div className="card-body">
         <div className="activity-feed">
           {recent.length === 0 ? (
-            <div className="empty">等待活动中…</div>
+            <div className="empty">等待新的动态…</div>
           ) : (
             recent.map((a) => <ActivityRow key={a.seq} activity={a} />)
           )}
@@ -38,7 +38,7 @@ function ActivityRow({ activity: a }: { activity: ActivityItem }) {
     <div className={`activity-item ${typeClass}`} data-ts={a.ts}>
       <span className="activity-icon">{a.icon || '📌'}</span>
       <span className="activity-time">{fmtTime(a.ts)}</span>
-      <span className="activity-text">{a.text || a.tool || a.type}</span>
+      <span className="activity-text">{a.text || a.tool || formatActivityLabel(a.type)}</span>
     </div>
   );
 }

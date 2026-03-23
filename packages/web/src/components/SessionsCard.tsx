@@ -1,4 +1,4 @@
-import { fmtTokens, timeAgo, detectChannel } from '../lib/format';
+import { fmtTokens, timeAgo, detectChannel, formatChannelLabel } from '../lib/format';
 import { getSessionMeta } from '../lib/sessionMeta';
 import type { SessionItem } from '../lib/types';
 
@@ -8,16 +8,16 @@ interface SessionsCardProps {
 
 export function SessionsCard({ sessions }: SessionsCardProps) {
   return (
-    <div className="card">
+    <div className="card card-sessions">
       <div className="card-header">
         <span className="card-icon">🔗</span>
-        <span className="card-title">会话列表</span>
+        <span className="card-title">近期会话</span>
         <span className="badge">{sessions.length}</span>
       </div>
       <div className="card-body">
         <div className="session-list">
           {sessions.length === 0 ? (
-            <div className="empty">No sessions</div>
+            <div className="empty">当前没有会话</div>
           ) : (
             sessions.map((s) => <SessionRow key={s.key} session={s} />)
           )}
@@ -36,7 +36,7 @@ function SessionRow({ session: s }: { session: SessionItem }) {
   return (
     <div className="session-item">
       <div className="session-main-row">
-        <span className={`session-channel ${ch}`}>{ch}</span>
+        <span className={`session-channel ${ch}`}>{formatChannelLabel(ch)}</span>
         <span className="session-key" title={s.key}>{meta.shortKey}</span>
         <span className={`session-project session-project-${meta.level}`}>{meta.project}</span>
         <span className="session-tokens">{fmtTokens(s.totalTokens)}</span>

@@ -1,6 +1,8 @@
 import { useRef, useEffect, useCallback } from 'react';
 import type { DailyUsage } from '../lib/types';
 
+const USD_TO_CNY = 7.2;
+
 interface UsageChartProps {
   daily: DailyUsage[];
 }
@@ -50,7 +52,7 @@ export function UsageChart({ daily }: UsageChartProps) {
       ctx.fillStyle = '#3a4a6b';
       ctx.font = '9px JetBrains Mono';
       ctx.textAlign = 'right';
-      ctx.fillText('$' + (max * (1 - i / 4)).toFixed(2), pad.l - 5, y + 3);
+      ctx.fillText('¥' + (max * (1 - i / 4) * USD_TO_CNY).toFixed(2), pad.l - 5, y + 3);
     }
 
     if (n < 2) return;

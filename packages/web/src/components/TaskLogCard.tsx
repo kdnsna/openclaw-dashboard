@@ -7,10 +7,10 @@ interface TaskLogCardProps {
 
 export function TaskLogCard({ tasks }: TaskLogCardProps) {
   return (
-    <div className="card">
+    <div className="card card-tasks">
       <div className="card-header">
         <span className="card-icon">📋</span>
-        <span className="card-title">任务日志</span>
+        <span className="card-title">任务记录</span>
       </div>
       <div className="card-body">
         <div className="task-log">
@@ -39,7 +39,7 @@ function TaskRow({ task: t }: { task: TaskItem }) {
       <div className="task-header">
         <span className="task-time">{fmtTime(t.startedAt)}</span>
         <span className="task-title">{t.title}</span>
-        {t.toolCount > 0 && <span className="task-tools">🔧 {t.toolCount}</span>}
+        {t.toolCount > 0 && <span className="task-tools">工具 {t.toolCount}</span>}
         <span className="task-status">{statusLabel}</span>
       </div>
       <div className="task-desc">{t.task}</div>

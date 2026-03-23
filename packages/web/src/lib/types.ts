@@ -12,6 +12,75 @@ export interface DashboardMetrics {
   activity: ActivitySnapshot;
 }
 
+export interface AcpWorkflowSnapshot {
+  timestamp: number;
+  available: boolean;
+  error?: string;
+  stats: AcpWorkflowStats;
+  sessions: AcpWorkflowSession[];
+}
+
+export interface AcpWorkflowStats {
+  totalSessions: number;
+  activeSessions: number;
+  openToolCalls: number;
+  transitions: number;
+  avgTurnMs: number | null;
+  avgToolMs: number | null;
+}
+
+export interface AcpWorkflowSession {
+  id: string;
+  recordId: string;
+  acpSessionId: string | null;
+  name: string;
+  cwd: string;
+  closed: boolean;
+  status: 'active' | 'closed' | 'error';
+  currentPhase: AcpWorkflowPhase;
+  lastEvent: string;
+  startedAt: string | null;
+  promptAt: string | null;
+  updatedAt: string | null;
+  closedAt: string | null;
+  currentModeId: string | null;
+  modelId: string | null;
+  nodes: AcpWorkflowNode[];
+  transitions: AcpWorkflowTransition[];
+  latency: AcpWorkflowLatency;
+  toolStats: AcpWorkflowToolStats;
+}
+
+export type AcpWorkflowPhase = 'init' | 'prompt' | 'plan' | 'tool' | 'respond' | 'done' | 'error';
+export type AcpWorkflowNodeStatus = 'idle' | 'seen' | 'active' | 'error';
+
+export interface AcpWorkflowNode {
+  id: AcpWorkflowPhase;
+  label: string;
+  status: AcpWorkflowNodeStatus;
+  count?: number;
+}
+
+export interface AcpWorkflowTransition {
+  from: AcpWorkflowPhase;
+  to: AcpWorkflowPhase;
+  count: number;
+}
+
+export interface AcpWorkflowLatency {
+  queuedMs: number | null;
+  turnMs: number | null;
+  idleMs: number | null;
+  firstResponseMs: number | null;
+}
+
+export interface AcpWorkflowToolStats {
+  total: number;
+  running: number;
+  avgDurationMs: number | null;
+  slowestDurationMs: number | null;
+}
+
 export interface LifetimeLedger {
   sessionCount: number;
   assistantTurns: number;

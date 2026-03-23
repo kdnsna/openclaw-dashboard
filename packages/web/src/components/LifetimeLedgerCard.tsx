@@ -26,15 +26,15 @@ export function LifetimeLedgerCard({ ledger }: LifetimeLedgerCardProps) {
         <div className="stat-grid">
           <div className="stat">
             <div className="stat-value">{fmtTokens(ledger?.inputTokens)}</div>
-            <div className="stat-label">Input</div>
+            <div className="stat-label">输入量</div>
           </div>
           <div className="stat">
             <div className="stat-value accent-cyan">{fmtTokens(ledger?.outputTokens)}</div>
-            <div className="stat-label">Output</div>
+            <div className="stat-label">输出量</div>
           </div>
           <div className="stat">
             <div className="stat-value accent-purple">{fmtTokens(ledger?.totalTokens)}</div>
-            <div className="stat-label">总 Tokens</div>
+            <div className="stat-label">令牌总量</div>
           </div>
           <div className="stat">
             <div className="stat-value accent-green">{fmtCost(ledger?.totalCost)}</div>

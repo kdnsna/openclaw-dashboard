@@ -20,10 +20,10 @@ export function CostBreakdownCard({ totals }: CostBreakdownCardProps) {
   const max = Math.max(...items.map((i) => i.value), 0.01);
 
   return (
-    <div className="card">
+    <div className="card card-cost">
       <div className="card-header">
         <span className="card-icon">💰</span>
-        <span className="card-title">成本拆分（人民币）</span>
+        <span className="card-title">成本构成（人民币）</span>
       </div>
       <div className="card-body">
         <div className="cost-bars">

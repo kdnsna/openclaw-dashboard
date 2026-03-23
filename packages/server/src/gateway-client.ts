@@ -157,7 +157,7 @@ export class GatewayClient {
       params: {
         minProtocol: 3,
         maxProtocol: 3,
-        client: { id: 'gateway-client', version: '1.2.2', platform: 'linux', deviceFamily: 'Linux', mode: 'backend' },
+        client: { id: 'gateway-client', version: '2.0.0', platform: 'linux', deviceFamily: 'Linux', mode: 'backend' },
         role: 'operator',
         scopes,
         caps: [],

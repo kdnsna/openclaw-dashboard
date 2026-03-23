@@ -1,18 +1,34 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import type { DashboardMetrics } from '../lib/types';
+import type { AcpWorkflowSnapshot, DashboardMetrics } from '../lib/types';
 
 export type WsStatus = 'connecting' | 'live' | 'offline';
 
 export interface UseMetricsResult {
   data: DashboardMetrics | null;
+  acpWorkflow: AcpWorkflowSnapshot | null;
   wsStatus: WsStatus;
 }
 
 export function useMetrics(): UseMetricsResult {
   const [data, setData] = useState<DashboardMetrics | null>(null);
+  const [acpWorkflow, setAcpWorkflow] = useState<AcpWorkflowSnapshot | null>(null);
   const [wsStatus, setWsStatus] = useState<WsStatus>('connecting');
   const wsRef = useRef<WebSocket | null>(null);
   const reconnectRef = useRef<ReturnType<typeof setTimeout>>();
+
+  const fetchFallback = useCallback(() => {
+    const base = location.pathname.replace(/\/+$/, '');
+
+    fetch(base + '/api/metrics')
+      .then((r) => r.json())
+      .then(setData)
+      .catch(() => {});
+
+    fetch(base + '/api/acp-workflow')
+      .then((r) => r.json())
+      .then(setAcpWorkflow)
+      .catch(() => {});
+  }, []);
 
   const connect = useCallback(() => {
     const proto = location.protocol === 'https:' ? 'wss' : 'ws';
@@ -30,6 +46,7 @@ export function useMetrics(): UseMetricsResult {
       try {
         const msg = JSON.parse(e.data);
         if (msg.type === 'metrics') setData(msg.data);
+        if (msg.type === 'acp_workflow') setAcpWorkflow(msg.data);
       } catch {
         // Ignore malformed messages.
       }
@@ -46,23 +63,25 @@ export function useMetrics(): UseMetricsResult {
   useEffect(() => {
     connect();
 
-    // Fallback: if WS hasn't connected after 5s, try REST API.
     const fallback = setTimeout(() => {
       if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
-        const base = location.pathname.replace(/\/+$/, '');
-        fetch(base + '/api/metrics')
-          .then((r) => r.json())
-          .then(setData)
-          .catch(() => {});
+        fetchFallback();
+      }
+    }, 5000);
+
+    const polling = setInterval(() => {
+      if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
+        fetchFallback();
       }
     }, 5000);
 
     return () => {
       clearTimeout(fallback);
+      clearInterval(polling);
       clearTimeout(reconnectRef.current);
       wsRef.current?.close();
     };
-  }, [connect]);
+  }, [connect, fetchFallback]);
 
-  return { data, wsStatus };
+  return { data, acpWorkflow, wsStatus };
 }

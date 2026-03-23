@@ -17,35 +17,35 @@ export function TokenUsageCard({ usageCost, ledger }: TokenUsageCardProps) {
   const cacheRate = totalIn > 0 ? ((t?.cacheRead ?? 0) / totalIn) * 100 : 0;
 
   return (
-    <div className="card">
+    <div className="card card-token">
       <div className="card-header">
         <span className="card-icon">📊</span>
-        <span className="card-title">TOKEN 用量（近 30 天 / 账单口径）</span>
+        <span className="card-title">令牌概览（近 30 天）</span>
       </div>
       <div className="card-body">
         <div className="metrics-row">
           <div className="metric">
             <div className="metric-value">{fmtTokens(billableWindowTotal)}</div>
-            <div className="metric-label">30天总量（含缓存）</div>
+            <div className="metric-label">近 30 天总量</div>
           </div>
           <div className="metric">
             <div className="metric-value accent-green">{fmtCost(t?.totalCost)}</div>
-            <div className="metric-label">30天成本</div>
+            <div className="metric-label">近 30 天成本</div>
           </div>
           <div className="metric">
             <div className="metric-value accent-cyan">{fmtPct(t ? cacheRate : undefined)}</div>
-            <div className="metric-label">缓存命中</div>
+            <div className="metric-label">缓存命中率</div>
           </div>
           <div className="metric">
             <div className="metric-value accent-purple">{fmtTokens(t?.output)}</div>
-            <div className="metric-label">30天输出</div>
+            <div className="metric-label">近 30 天输出</div>
           </div>
         </div>
         <div className="chart-container">
           <UsageChart daily={daily} />
         </div>
         <div className="mini-ledger">
-          <div className="mini-ledger-title">累计账本（全历史）</div>
+          <div className="mini-ledger-title">累计账本</div>
           <div className="mini-ledger-grid">
             <div className="mini-ledger-item">
               <span className="mini-ledger-key">累计成本</span>

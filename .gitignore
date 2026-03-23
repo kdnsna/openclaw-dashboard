@@ -6,3 +6,5 @@ dist/
 .env
 LOCAL_NOTES.md
 HUMANS.md
+.run/
+.snapshots/

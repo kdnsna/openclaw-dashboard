@@ -11,6 +11,7 @@ export const config = {
   gwPort: Number(process.env.GW_PORT || process.env.OPENCLAW_GATEWAY_PORT) || 18789,
   identityFile: path.join(process.cwd(), '.device-identity.json'),
   sessionsDir: path.join(OPENCLAW_HOME, 'agents/main/sessions'),
+  acpxSessionsDir: path.join(HOME, '.acpx/sessions'),
   gwToken: resolveGatewayToken(),
 } as const;
 
