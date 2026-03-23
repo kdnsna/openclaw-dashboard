@@ -164,7 +164,7 @@ export class GatewayClient {
         commands: [],
         permissions: {},
         locale: 'zh-CN',
-        userAgent: 'openclaw-dashboard/0.1.0',
+        userAgent: 'openclaw-dashboard/2.0.0',
         ...(config.gwToken ? { auth: { token: config.gwToken } } : {}),
         device: {
           id: this._identity.deviceId,
