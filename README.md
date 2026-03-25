@@ -21,17 +21,19 @@
 
 ## 截图预览
 
-### 桌面端
+### 桌面端｜总览视图（v3）
 
-![桌面端截图](assets/screenshots/dashboard-desktop-home.png)
+![桌面端总览截图](assets/screenshots/dashboard-desktop-overview-v3.png)
 
-### 手机端
+### 桌面端｜检修视图（v3）
 
-![手机端截图](assets/screenshots/dashboard-mobile-home.png)
+![桌面端检修截图](assets/screenshots/dashboard-desktop-inspect-v3.png)
 
-### 平板端
+### 手机端｜总览视图（v3）
 
-![平板端截图](assets/screenshots/dashboard-tablet-home.png)
+![手机端总览截图](assets/screenshots/dashboard-mobile-overview-v3.png)
+
+> 注：README 截图位已切换到 v3 命名与展示结构，若本地尚未生成对应截图文件，请补抓后再推送仓库。
 
 ## 功能特性
 
