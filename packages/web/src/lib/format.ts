@@ -35,6 +35,36 @@ export function fmtTime(iso: string | null | undefined): string {
   });
 }
 
+export function fmtDateTime(value: string | number | null | undefined): string {
+  if (value == null) return '--';
+  const date = typeof value === 'number' ? new Date(value) : new Date(value);
+  if (Number.isNaN(date.getTime())) return '--';
+  return date.toLocaleString('zh-CN', {
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+}
+
+export function fmtDuration(ms: number | null | undefined): string {
+  if (ms == null || !Number.isFinite(ms)) return '--';
+  if (ms < 60_000) return `${Math.round(ms / 1000)}秒`;
+  const minutes = Math.floor(ms / 60_000);
+  if (minutes < 60) return `${minutes}分钟`;
+  const hours = Math.floor(minutes / 60);
+  const remainMinutes = minutes % 60;
+  return remainMinutes === 0 ? `${hours}小时` : `${hours}小时${remainMinutes}分`;
+}
+
+export function fmtDurationBetween(start: string | null | undefined, end?: string | null | undefined): string {
+  if (!start) return '--';
+  const startMs = Date.parse(start);
+  const endMs = end ? Date.parse(end) : Date.now();
+  if (!Number.isFinite(startMs) || !Number.isFinite(endMs)) return '--';
+  return fmtDuration(Math.max(0, endMs - startMs));
+}
+
 const CHANNEL_PREFIXES = ['telegram', 'wecom', 'cron', 'feishu', 'discord'] as const;
 const CHANNEL_LABELS: Record<string, string> = {
   telegram: 'TG',
@@ -66,6 +96,13 @@ const ACP_STATUS_LABELS: Record<string, string> = {
   active: '运行中',
   closed: '已结束',
   error: '异常',
+};
+
+const AUTOMATION_HEALTH_LABELS: Record<string, string> = {
+  healthy: '正常',
+  warning: '待关注',
+  failing: '异常',
+  disabled: '已停用',
 };
 
 export function detectChannel(sessionKey: string): string {
@@ -105,4 +142,8 @@ export function formatWorkflowModeLabel(modeId: string | null | undefined): stri
 
 export function formatWorkflowModelLabel(modelId: string | null | undefined): string {
   return `模型：${modelId ?? '--'}`;
+}
+
+export function formatAutomationHealthLabel(health: string): string {
+  return AUTOMATION_HEALTH_LABELS[health] ?? health;
 }

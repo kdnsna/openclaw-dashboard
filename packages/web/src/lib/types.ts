@@ -8,8 +8,50 @@ export interface DashboardMetrics {
   presence?: PresenceItem[];
   usageCost?: UsageCostData;
   ledger?: LifetimeLedger;
+  automation: AutomationSnapshot;
+  officialDashboard: OfficialDashboardInfo;
   system: SystemSnapshot;
   activity: ActivitySnapshot;
+}
+
+export interface OfficialDashboardInfo {
+  port: number;
+  links: OfficialDashboardLink[];
+}
+
+export interface OfficialDashboardLink {
+  id: string;
+  label: string;
+  path: string;
+  description: string;
+}
+
+export interface AutomationSnapshot {
+  timestamp: number;
+  available: boolean;
+  error?: string;
+  totalJobs: number;
+  enabledJobs: number;
+  healthyJobs: number;
+  warningJobs: number;
+  failingJobs: number;
+  nextRunAt: number | null;
+  jobs: AutomationJob[];
+}
+
+export interface AutomationJob {
+  id: string;
+  name: string;
+  enabled: boolean;
+  schedule: string | null;
+  sessionKey: string | null;
+  lastRunAt: number | null;
+  nextRunAt: number | null;
+  lastRunStatus: string | null;
+  lastDurationMs: number | null;
+  consecutiveErrors: number;
+  summary: string | null;
+  health: 'healthy' | 'warning' | 'failing' | 'disabled';
 }
 
 export interface AcpWorkflowSnapshot {

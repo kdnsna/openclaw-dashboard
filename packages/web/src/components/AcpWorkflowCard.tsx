@@ -1,4 +1,6 @@
 import {
+  fmtDateTime,
+  fmtDuration,
   fmtTime,
   timeAgo,
   formatWorkflowModeLabel,
@@ -19,7 +21,7 @@ export function AcpWorkflowCard({ workflow }: AcpWorkflowCardProps) {
     <div className="card workflow-card span-full">
       <div className="card-header">
         <span className="card-icon">🪄</span>
-        <span className="card-title">ACP 工作流</span>
+        <span className="card-title">ACP 工作流检修</span>
         <span className={`badge ${workflow?.stats.activeSessions ? 'pulse' : ''}`}>
           活跃 {workflow?.stats.activeSessions ?? 0}
         </span>
@@ -70,6 +72,7 @@ function WorkflowSessionCard({ session }: { session: AcpWorkflowSession }) {
       <div className="workflow-session-meta-top">
         <span>{session.updatedAt ? fmtTime(session.updatedAt) : '--'}</span>
         <span>{updatedAgo}</span>
+        <span>阶段 {formatWorkflowPhaseLabel(session.currentPhase)}</span>
       </div>
 
       <div className="workflow-track-shell">
@@ -86,10 +89,32 @@ function WorkflowSessionCard({ session }: { session: AcpWorkflowSession }) {
       </div>
 
       <div className="workflow-session-chips">
+        <span className="workflow-chip">阶段：{formatWorkflowPhaseLabel(session.currentPhase)}</span>
         <span className="workflow-chip">{formatWorkflowModeLabel(session.currentModeId)}</span>
         <span className="workflow-chip">{formatWorkflowModelLabel(session.modelId)}</span>
         <span className="workflow-chip">工具 {session.toolStats.total} 次</span>
         <span className="workflow-chip">进行中 {session.toolStats.running}</span>
+        <span className="workflow-chip">轮次 {fmtDuration(session.latency.turnMs)}</span>
+        <span className="workflow-chip">首响 {fmtDuration(session.latency.firstResponseMs)}</span>
+      </div>
+
+      <div className="workflow-session-detail-grid">
+        <div className="workflow-detail-item">
+          <span className="workflow-detail-label">开始</span>
+          <span className="workflow-detail-value">{fmtDateTime(session.startedAt)}</span>
+        </div>
+        <div className="workflow-detail-item">
+          <span className="workflow-detail-label">最近更新</span>
+          <span className="workflow-detail-value">{fmtDateTime(session.updatedAt)}</span>
+        </div>
+        <div className="workflow-detail-item">
+          <span className="workflow-detail-label">慢工具</span>
+          <span className="workflow-detail-value">{fmtDuration(session.toolStats.slowestDurationMs)}</span>
+        </div>
+        <div className="workflow-detail-item">
+          <span className="workflow-detail-label">空闲</span>
+          <span className="workflow-detail-value">{fmtDuration(session.latency.idleMs)}</span>
+        </div>
       </div>
 
       <div className="workflow-session-event">最近事件：{session.lastEvent}</div>
@@ -134,10 +159,7 @@ function Metric({ label, value, accent }: { label: string; value: string; accent
 }
 
 function formatMs(ms: number | null): string {
-  if (ms == null) return '--';
-  if (ms >= 60000) return `${(ms / 60000).toFixed(ms >= 600000 ? 0 : 1)}分钟`;
-  if (ms >= 1000) return `${Math.round(ms / 1000)}秒`;
-  return `${ms}毫秒`;
+  return fmtDuration(ms);
 }
 
 function shortName(name: string): string {
