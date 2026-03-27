@@ -6,10 +6,10 @@ interface CostBreakdownCardProps {
 }
 
 const COST_ITEMS = [
-  { label: '缓存写入', key: 'cacheWriteCost' as const, color: '#b366ff' },
-  { label: '缓存读取', key: 'cacheReadCost' as const, color: '#00f0ff' },
-  { label: '输出', key: 'outputCost' as const, color: '#00ff88' },
-  { label: '输入', key: 'inputCost' as const, color: '#ffcc00' },
+  { label: '缓存写入', key: 'cacheWriteCost' as const, color: '#8493ff' },
+  { label: '缓存读取', key: 'cacheReadCost' as const, color: '#72d0c8' },
+  { label: '输出', key: 'outputCost' as const, color: '#7ed9a4' },
+  { label: '输入', key: 'inputCost' as const, color: '#d8b56f' },
 ];
 
 export function CostBreakdownCard({ totals }: CostBreakdownCardProps) {

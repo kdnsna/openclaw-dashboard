@@ -40,7 +40,7 @@ export function UsageChart({ daily }: UsageChartProps) {
     const n = costs.length;
 
     // Grid lines
-    ctx.strokeStyle = '#1a2540';
+    ctx.strokeStyle = 'rgba(88, 111, 147, 0.22)';
     ctx.lineWidth = 0.5;
     for (let i = 0; i <= 4; i++) {
       const y = pad.t + (ph / 4) * i;
@@ -49,7 +49,7 @@ export function UsageChart({ daily }: UsageChartProps) {
       ctx.lineTo(w - pad.r, y);
       ctx.stroke();
 
-      ctx.fillStyle = '#3a4a6b';
+      ctx.fillStyle = '#61738f';
       ctx.font = '9px JetBrains Mono';
       ctx.textAlign = 'right';
       ctx.fillText('¥' + (max * (1 - i / 4) * USD_TO_CNY).toFixed(2), pad.l - 5, y + 3);
@@ -59,8 +59,8 @@ export function UsageChart({ daily }: UsageChartProps) {
 
     // Area fill
     const grd = ctx.createLinearGradient(0, pad.t, 0, h - pad.b);
-    grd.addColorStop(0, 'rgba(0,240,255,0.2)');
-    grd.addColorStop(1, 'rgba(0,240,255,0)');
+    grd.addColorStop(0, 'rgba(114, 208, 200, 0.18)');
+    grd.addColorStop(1, 'rgba(114, 208, 200, 0)');
 
     ctx.beginPath();
     costs.forEach((c, i) => {
@@ -81,10 +81,10 @@ export function UsageChart({ daily }: UsageChartProps) {
       const y = pad.t + ph - (c / max) * ph;
       i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
     });
-    ctx.strokeStyle = '#00f0ff';
+    ctx.strokeStyle = '#72d0c8';
     ctx.lineWidth = 2;
-    ctx.shadowColor = '#00f0ff';
-    ctx.shadowBlur = 6;
+    ctx.shadowColor = 'rgba(114, 208, 200, 0.14)';
+    ctx.shadowBlur = 4;
     ctx.stroke();
     ctx.shadowBlur = 0;
 
@@ -94,12 +94,12 @@ export function UsageChart({ daily }: UsageChartProps) {
       const y = pad.t + ph - (costs[i] / max) * ph;
       ctx.beginPath();
       ctx.arc(x, y, 3, 0, Math.PI * 2);
-      ctx.fillStyle = i === n - 1 ? '#00ff88' : '#00f0ff';
+      ctx.fillStyle = i === n - 1 ? '#7ed9a4' : '#72d0c8';
       ctx.fill();
     }
 
     // Date labels
-    ctx.fillStyle = '#3a4a6b';
+    ctx.fillStyle = '#61738f';
     ctx.font = '9px JetBrains Mono';
     ctx.textAlign = 'center';
     const dates = daily.map((d) => d.date);

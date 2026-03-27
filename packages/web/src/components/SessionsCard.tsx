@@ -40,7 +40,7 @@ function SessionRow({ session: s }: { session: SessionItem }) {
   const ch = detectChannel(s.key);
   const meta = getSessionMeta(s);
   const pct = s.percentUsed ?? 0;
-  const ctxColor = pct > 70 ? '#ff3366' : pct > 40 ? '#ffcc00' : '#00f0ff';
+  const ctxColor = pct > 70 ? 'var(--danger-strong)' : pct > 40 ? 'var(--warn-strong)' : 'var(--accent-strong)';
   const signals = getSessionSignals(s);
 
   return (

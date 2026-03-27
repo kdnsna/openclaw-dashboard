@@ -17,7 +17,7 @@ function fmtDateTime(value: string | null | undefined): string {
 
 export function LifetimeLedgerCard({ ledger }: LifetimeLedgerCardProps) {
   return (
-    <div className="card">
+    <div className="card card-lifetime-ledger">
       <div className="card-header">
         <span className="card-icon">🧾</span>
         <span className="card-title">长期账本</span>

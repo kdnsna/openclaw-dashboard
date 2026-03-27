@@ -16,11 +16,14 @@ export function Footer({ timestamp, system }: FooterProps) {
 
   return (
     <footer className="footer">
-      <span>🦞 小锤子监控台</span>
-      <span>{updated}</span>
-      <span style={{ color: 'var(--text2)' }}>
-        CPU {formatPercent(system?.cpuPercent)} · 内存占用 {formatPercent(system?.memPercent)}
-      </span>
+      <div className="footer-brand">
+        <span className="footer-title">小锤子监控台</span>
+        <span className="footer-subtitle">AI / OpenClaw workspace monitor</span>
+      </div>
+      <div className="footer-meta">
+        <span>{updated}</span>
+        <span>CPU {formatPercent(system?.cpuPercent)} · 内存占用 {formatPercent(system?.memPercent)}</span>
+      </div>
     </footer>
   );
 }

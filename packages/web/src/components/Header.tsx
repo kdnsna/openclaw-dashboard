@@ -1,13 +1,15 @@
 import { useClock } from '../hooks/useClock';
 import type { DashboardMetrics, ChannelHealth } from '../lib/types';
 import { APP_VERSION } from '../lib/appVersion';
+import { BrandMarkIcon } from './BrandMarkIcon';
 import { HeaderStatusGroup } from './HeaderStatusGroup';
 
 interface HeaderProps {
   data: DashboardMetrics | null;
+  isCollapsed?: boolean;
 }
 
-export function Header({ data }: HeaderProps) {
+export function Header({ data, isCollapsed = false }: HeaderProps) {
   const clock = useClock();
 
   const health = data?.health;
@@ -48,17 +50,49 @@ export function Header({ data }: HeaderProps) {
     };
   });
 
+  const healthyChannels = channelItems.filter((item) => item.tone === 'ok').length;
+  const onlineDevices = deviceItems.filter((item) => item.tone === 'active').length;
+  const compactSummary = [
+    {
+      key: 'channels',
+      label: channelItems.length > 0 ? `通道 ${healthyChannels}/${channelItems.length}` : '通道 暂无',
+      tone: channelItems.length > 0 && healthyChannels === channelItems.length ? ('ok' as const) : ('inactive' as const),
+    },
+    {
+      key: 'devices',
+      label: deviceItems.length > 0 ? `设备 ${onlineDevices}/${deviceItems.length}` : '设备 暂无',
+      tone: onlineDevices > 0 ? ('active' as const) : ('inactive' as const),
+    },
+    {
+      key: 'sessions',
+      label: `会话 ${sessions.length}`,
+      tone: sessions.length > 0 ? ('active' as const) : ('inactive' as const),
+    },
+  ];
+
   return (
-    <header className="header">
-      <div className="header-left">
-        <span className="logo">🦞</span>
-        <div className="header-brand">
-          <h1>小锤子监控台</h1>
-          <span className="header-subtitle">桌面运行总览</span>
+    <header className={`header${isCollapsed ? ' is-collapsed' : ''}`}>
+      <div className="header-main">
+        <div className="header-left">
+          <span className="logo-mark" aria-hidden="true">
+            <BrandMarkIcon className="logo-mark-icon" />
+          </span>
+          <div className="header-brand">
+            <span className="header-kicker">HAMMER WATCH / AI OPS</span>
+            <h1>小锤子监控台</h1>
+            <span className="header-subtitle">OpenClaw / ACP / 自动化总览</span>
+          </div>
+          <span className="version">v{APP_VERSION}</span>
         </div>
-        <span className="version">v{APP_VERSION}</span>
+        <div className="header-right">
+          <div className={`status-indicator ${healthClass}`}>
+            <span className="dot" />
+            <span className="label">{healthLabel}</span>
+          </div>
+          <div className="clock">{clock}</div>
+        </div>
       </div>
-      <div className="header-center">
+      <div className="header-rail">
         <div className="live-counters">
           <div className="counter">
             <span className="counter-value">{stats?.messages ?? 0}</span>
@@ -73,17 +107,22 @@ export function Header({ data }: HeaderProps) {
             <span className="counter-label">活跃会话</span>
           </div>
         </div>
-      </div>
-      <div className="header-mid">
-        <HeaderStatusGroup items={channelItems} emptyLabel="暂无通道" title="通道" />
-        <HeaderStatusGroup items={deviceItems} emptyLabel="暂无设备" title="设备" />
-      </div>
-      <div className="header-right">
-        <div className={`status-indicator ${healthClass}`}>
-          <span className="dot" />
-          <span className="label">{healthLabel}</span>
+        <div className="header-mid">
+          <HeaderStatusGroup items={channelItems} emptyLabel="暂无通道" title="通道" />
+          <HeaderStatusGroup items={deviceItems} emptyLabel="暂无设备" title="设备" />
         </div>
-        <div className="clock">{clock}</div>
+      </div>
+      <div className="header-compact-strip" aria-hidden={!isCollapsed}>
+        {compactSummary.map((item) => (
+          <span
+            key={item.key}
+            className={`header-compact-item${item.key === 'sessions' ? ' is-secondary' : ''}`}
+            title={item.label}
+          >
+            <span className={`inline-dot ${item.tone}`} />
+            <span className="inline-name">{item.label}</span>
+          </span>
+        ))}
       </div>
     </header>
   );
