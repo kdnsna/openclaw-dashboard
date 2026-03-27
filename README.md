@@ -19,19 +19,19 @@
 
 ## 截图预览
 
-### 桌面端｜总览视图（v3）
+### 桌面端｜总览视图（v3.2.0）
 
 ![桌面端总览截图](assets/screenshots/dashboard-desktop-overview-v3.png)
 
-### 桌面端｜检修视图（v3）
+### 桌面端｜检修视图（v3.2.0）
 
 ![桌面端检修截图](assets/screenshots/dashboard-desktop-inspect-v3.png)
 
-### 手机端｜总览视图（v3）
+### 手机端｜总览视图（v3.2.0）
 
 ![手机端总览截图](assets/screenshots/dashboard-mobile-overview-v3.png)
 
-> 以下截图均基于 v3.0.0 实际界面抓取：桌面总览、桌面检修、手机总览。
+> 当前截图展示的是 v3 系列最新界面风格（桌面总览、桌面检修、手机总览）；如后续继续精修布局与品牌细节，截图会随版本同步更新。
 
 ## 功能特性
 
