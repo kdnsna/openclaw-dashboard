@@ -1,12 +1,16 @@
 import { fmtDateTime, fmtDuration, formatAutomationHealthLabel } from '../lib/format';
-import type { AutomationSnapshot } from '../lib/types';
+import type { AutomationSnapshot, ResourceState } from '../lib/types';
+import { CardStateNotice } from './CardStateNotice';
 
 interface AutomationStatusCardProps {
   automation?: AutomationSnapshot | null;
+  state: ResourceState;
+  onRetry?: () => void;
 }
 
-export function AutomationStatusCard({ automation }: AutomationStatusCardProps) {
+export function AutomationStatusCard({ automation, state, onRetry }: AutomationStatusCardProps) {
   const jobs = automation?.jobs ?? [];
+  const hasSnapshot = Boolean(automation);
 
   return (
     <div className="card card-automation">
@@ -18,12 +22,40 @@ export function AutomationStatusCard({ automation }: AutomationStatusCardProps) 
         </span>
       </div>
       <div className="card-body">
-        {!automation ? (
-          <div className="empty">正在加载自动化摘要…</div>
-        ) : !automation.available ? (
-          <div className="empty">自动化数据暂不可用：{automation.error ?? '未发现 cron 数据目录'}</div>
+        {!hasSnapshot && state.status === 'loading' ? (
+          <CardStateNotice
+            tone="loading"
+            title="正在同步自动化摘要"
+            detail="启动阶段会先补齐一轮 cron 快照，再接入实时变化。"
+          />
+        ) : !hasSnapshot && state.status === 'error' ? (
+          <CardStateNotice
+            tone="error"
+            title="自动化摘要暂不可用"
+            detail={state.error ?? '核心指标请求失败'}
+            onRetry={onRetry}
+          />
+        ) : !automation?.available ? (
+          <CardStateNotice
+            tone="error"
+            title="自动化数据暂不可用"
+            detail={automation?.error ?? '未发现 cron 数据目录'}
+            onRetry={onRetry}
+          />
         ) : (
           <>
+            {hasSnapshot && state.status === 'loading' ? (
+              <CardStateNotice tone="loading" compact title="正在刷新自动化摘要" />
+            ) : null}
+            {hasSnapshot && state.status === 'error' ? (
+              <CardStateNotice
+                tone="warning"
+                compact
+                title="当前展示最近一次成功快照"
+                detail={state.error ?? '自动化摘要刷新失败'}
+                onRetry={onRetry}
+              />
+            ) : null}
             <div className="summary-grid compact">
               <div className="summary-stat tone-good">
                 <div className="summary-stat-value">{automation.enabledJobs}</div>
@@ -59,7 +91,11 @@ export function AutomationStatusCard({ automation }: AutomationStatusCardProps) 
                     <span>最近运行 {job.lastRunAt ? fmtDateTime(job.lastRunAt) : '--'}</span>
                     <span>耗时 {fmtDuration(job.lastDurationMs)}</span>
                   </div>
-                  {job.summary ? <div className="automation-job-summary">{job.summary}</div> : null}
+                  {job.summary ? (
+                    <div className="automation-job-summary" title={job.summary}>
+                      {job.summary}
+                    </div>
+                  ) : null}
                 </div>
               ))}
             </div>

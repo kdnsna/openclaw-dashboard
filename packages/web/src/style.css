@@ -786,12 +786,10 @@ select {
   grid-column: span 4;
 }
 
-.grid-overview .card-workflow-summary {
-  grid-column: span 7;
-}
-
+.grid-overview .card-task-flow,
+.grid-overview .card-workflow-summary,
 .grid-overview .card-official-links {
-  grid-column: span 5;
+  grid-column: span 4;
 }
 
 .grid-inspect-primary .card-sessions {
@@ -804,10 +802,15 @@ select {
 
 .grid-inspect-secondary .card-activity {
   grid-column: span 7;
+  grid-row: span 2;
 }
 
 .grid-inspect-secondary .card:not(.card-activity) {
   grid-column: span 5;
+}
+
+.grid-inspect-secondary .card-lifetime-ledger {
+  grid-column: 8 / -1;
 }
 
 .grid-workflow .card,
@@ -918,6 +921,89 @@ select {
   color: var(--text-muted);
   background: rgba(255, 255, 255, 0.02);
   text-align: center;
+}
+
+.card-state {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 11px;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(124, 153, 196, 0.14);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.card-state.is-compact {
+  align-items: center;
+  padding: 8px 10px;
+}
+
+.card-state-loading {
+  border-color: rgba(114, 208, 200, 0.18);
+  background: rgba(114, 208, 200, 0.06);
+}
+
+.card-state-warning {
+  border-color: rgba(216, 181, 111, 0.22);
+  background: rgba(216, 181, 111, 0.07);
+}
+
+.card-state-error {
+  border-color: rgba(217, 121, 130, 0.24);
+  background: rgba(217, 121, 130, 0.08);
+}
+
+.card-state-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.card-state-title {
+  color: var(--text);
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.card-state-loading .card-state-title {
+  color: var(--accent-strong);
+}
+
+.card-state-warning .card-state-title {
+  color: var(--warn-strong);
+}
+
+.card-state-error .card-state-title {
+  color: var(--danger-strong);
+}
+
+.card-state-detail {
+  color: var(--text-muted);
+  font-size: 0.74rem;
+  line-height: 1.45;
+}
+
+.card-state-action {
+  appearance: none;
+  flex: 0 0 auto;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(138, 230, 221, 0.22);
+  background: rgba(114, 208, 200, 0.12);
+  color: var(--accent-strong);
+  font-size: 0.7rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.16s ease, border-color 0.16s ease, background 0.16s ease;
+}
+
+.card-state-action:hover {
+  transform: translateY(-1px);
+  border-color: rgba(138, 230, 221, 0.36);
+  background: rgba(114, 208, 200, 0.18);
 }
 
 .accent-cyan {
@@ -1182,7 +1268,6 @@ select {
 .automation-job-list,
 .task-log,
 .ledger-list,
-.official-link-list,
 .workflow-focus-list,
 .workflow-session-grid,
 .activity-feed,
@@ -1208,6 +1293,12 @@ select {
 .grid-inspect-primary,
 .grid-inspect-secondary {
   align-items: start;
+}
+
+.official-link-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--card-list-gap);
 }
 
 .attention-item {
@@ -1338,6 +1429,24 @@ select {
   font-weight: 700;
 }
 
+.workflow-focus-heading {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.workflow-focus-secondary,
+.workflow-session-secondary {
+  min-width: 0;
+  color: var(--text-muted);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.64rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .automation-job-health,
 .workflow-focus-status,
 .workflow-session-status {
@@ -1419,7 +1528,8 @@ select {
 
 .session-list,
 .task-log,
-.activity-feed {
+.activity-feed,
+.task-events-feed {
   overflow-y: auto;
   overscroll-behavior: contain;
   scrollbar-gutter: stable both-edges;
@@ -1430,6 +1540,7 @@ select {
 .session-list,
 .task-log,
 .activity-feed,
+.task-events-feed,
 .workflow-session-grid {
   scrollbar-width: thin;
   scrollbar-color: rgba(124, 153, 196, 0.46) transparent;
@@ -1438,6 +1549,7 @@ select {
 .session-list::-webkit-scrollbar,
 .task-log::-webkit-scrollbar,
 .activity-feed::-webkit-scrollbar,
+.task-events-feed::-webkit-scrollbar,
 .workflow-session-grid::-webkit-scrollbar {
   width: 8px;
 }
@@ -1445,6 +1557,7 @@ select {
 .session-list::-webkit-scrollbar-thumb,
 .task-log::-webkit-scrollbar-thumb,
 .activity-feed::-webkit-scrollbar-thumb,
+.task-events-feed::-webkit-scrollbar-thumb,
 .workflow-session-grid::-webkit-scrollbar-thumb {
   background: rgba(124, 153, 196, 0.36);
   border-radius: 999px;
@@ -1453,6 +1566,7 @@ select {
 .session-list::-webkit-scrollbar-track,
 .task-log::-webkit-scrollbar-track,
 .activity-feed::-webkit-scrollbar-track,
+.task-events-feed::-webkit-scrollbar-track,
 .workflow-session-grid::-webkit-scrollbar-track {
   background: transparent;
 }
@@ -1467,6 +1581,10 @@ select {
 
 .card-activity .activity-feed {
   max-height: clamp(420px, 52vh, 760px);
+}
+
+.card-task-events .task-events-feed {
+  max-height: clamp(240px, 34vh, 380px);
 }
 
 .workflow-card .workflow-session-grid {
@@ -1512,6 +1630,7 @@ select {
 }
 
 .session-channel.discord,
+.session-channel.weixin,
 .session-project-chat {
   color: #dde2ff;
   background: rgba(132, 147, 255, 0.14);
@@ -1593,6 +1712,100 @@ select {
   gap: 6px;
 }
 
+.card-task-flow .card-body {
+  gap: 12px;
+}
+
+.task-flow-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.task-flow-item,
+.task-flow-attention-item {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 10px 11px;
+  border-radius: 16px;
+  border: 1px solid rgba(124, 153, 196, 0.14);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.task-flow-item.task-flow-medium,
+.task-flow-attention-item {
+  border-color: rgba(216, 181, 111, 0.18);
+}
+
+.task-flow-item.task-flow-high {
+  border-color: rgba(217, 121, 130, 0.22);
+}
+
+.task-flow-head {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.task-flow-title,
+.task-flow-attention-name {
+  color: var(--text);
+  font-size: 0.8rem;
+  font-weight: 700;
+  line-height: 1.42;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.task-flow-badges,
+.task-flow-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 8px;
+}
+
+.task-flow-meta,
+.task-flow-attention-meta {
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  line-height: 1.4;
+}
+
+.task-flow-blocker,
+.task-flow-next {
+  color: var(--text-soft);
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.task-flow-attention {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 2px;
+  border-top: 1px solid rgba(124, 153, 196, 0.12);
+}
+
+.task-flow-attention-title {
+  color: var(--text-muted);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.task-flow-attention-empty {
+  color: var(--text-muted);
+  font-size: 0.76rem;
+}
+
 .task-item.task-issue {
   border-color: rgba(217, 121, 130, 0.22);
 }
@@ -1636,6 +1849,60 @@ select {
   padding: 9px 10px;
 }
 
+.task-events-feed {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.task-event-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 11px;
+  border-radius: 16px;
+  border: 1px solid rgba(124, 153, 196, 0.14);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.task-event-item.severity-medium {
+  border-color: rgba(216, 181, 111, 0.22);
+}
+
+.task-event-item.severity-high {
+  border-color: rgba(217, 121, 130, 0.26);
+}
+
+.task-event-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.task-event-time,
+.task-event-type,
+.task-event-meta {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+}
+
+.task-event-type {
+  color: var(--accent-strong);
+}
+
+.task-event-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.task-event-summary {
+  font-size: 0.74rem;
+  line-height: 1.45;
+  color: var(--text-soft);
+}
+
 .activity-item::before {
   content: '';
   position: absolute;
@@ -1671,6 +1938,35 @@ select {
 .activity-text {
   line-height: 1.4;
   color: var(--text-soft);
+}
+
+.task-event-summary,
+.automation-job-summary,
+.official-link-desc,
+.official-link-url,
+.activity-text,
+.task-result,
+.session-note {
+  overflow-wrap: anywhere;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+}
+
+.task-event-summary,
+.automation-job-summary,
+.official-link-desc,
+.activity-text,
+.session-note {
+  -webkit-line-clamp: 3;
+}
+
+.task-result {
+  -webkit-line-clamp: 4;
+}
+
+.official-link-url {
+  -webkit-line-clamp: 2;
 }
 
 .ledger-list {
@@ -1901,6 +2197,8 @@ select {
   .grid-overview .card-cost,
   .grid-overview .card-system-summary,
   .grid-overview .card-automation,
+  .grid-overview .card-task-flow,
+  .grid-overview .card-workflow-summary,
   .grid-overview .card-official-links,
   .grid-inspect-primary .card-tasks,
   .grid-inspect-secondary .card:not(.card-activity) {
@@ -1964,6 +2262,12 @@ select {
     grid-column: 1 / -1;
   }
 
+  .grid-inspect-secondary .card.card-activity,
+  .grid-inspect-secondary .card:not(.card-activity) {
+    grid-column: 1 / -1;
+    grid-row: auto;
+  }
+
   .metrics-row,
   .stat-grid,
   .summary-grid,
@@ -1981,7 +2285,8 @@ select {
   .card-lifetime-ledger .stat-grid,
   .card-automation .summary-grid.compact,
   .card-workflow-summary .summary-grid.compact,
-  .card-system-summary .summary-grid {
+  .card-system-summary .summary-grid,
+  .official-link-list {
     grid-template-columns: 1fr;
   }
 
@@ -2347,6 +2652,7 @@ select {
   .activity-feed,
   .session-list,
   .task-log,
+  .task-events-feed,
   .workflow-focus-list,
   .workflow-session-card,
   .workflow-session-grid {
@@ -2419,5 +2725,12 @@ select {
 
   .activity-text {
     grid-column: 1 / -1;
+  }
+
+  .card-task-events .task-events-feed,
+  .task-events-feed {
+    max-height: none;
+    overflow: visible;
+    padding-right: 0;
   }
 }

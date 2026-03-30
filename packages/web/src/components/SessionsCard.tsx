@@ -1,44 +1,85 @@
 import { fmtTokens, timeAgo, detectChannel, formatChannelLabel } from '../lib/format';
-import { getSessionMeta } from '../lib/sessionMeta';
-import type { SessionItem } from '../lib/types';
+import { buildSessionDisplay } from '../lib/dashboard-presenters';
+import type { AutomationSnapshot, ResourceState, SessionItem } from '../lib/types';
+import { CardStateNotice } from './CardStateNotice';
 
 interface SessionsCardProps {
   sessions: SessionItem[];
+  automation?: AutomationSnapshot | null;
+  state: ResourceState;
+  onRetry?: () => void;
 }
 
-export function SessionsCard({ sessions }: SessionsCardProps) {
+export function SessionsCard({ sessions, automation, state, onRetry }: SessionsCardProps) {
   const sorted = [...sessions].sort(compareSessionPriority);
   const hotSessions = sorted.filter((session) => (session.age ?? Number.POSITIVE_INFINITY) <= 15 * 60 * 1000).length;
   const riskySessions = sorted.filter((session) => (session.percentUsed ?? 0) >= 75).length;
+  const hasSnapshot = state.updatedAt != null || state.status === 'ready' || sorted.length > 0;
+  const badgeLabel = !hasSnapshot && state.status === 'loading' ? '同步中' : String(sorted.length);
 
   return (
     <div className="card card-sessions">
       <div className="card-header">
         <span className="card-icon">🔗</span>
         <span className="card-title">会话工作台</span>
-        <span className={`badge${hotSessions > 0 ? ' pulse' : ''}`}>{sorted.length}</span>
+        <span className={`badge${hotSessions > 0 && hasSnapshot ? ' pulse' : ''}`}>{badgeLabel}</span>
       </div>
       <div className="card-body">
-        <div className="session-summary-strip">
-          <span>活跃 {hotSessions}</span>
-          <span>高 ctx {riskySessions}</span>
-          <span>总会话 {sorted.length}</span>
-        </div>
-        <div className="session-list">
-          {sorted.length === 0 ? (
-            <div className="empty">当前没有会话</div>
-          ) : (
-            sorted.map((s) => <SessionRow key={s.key} session={s} />)
-          )}
-        </div>
+        {!hasSnapshot && state.status === 'loading' ? (
+          <CardStateNotice
+            tone="loading"
+            title="正在同步会话工作台"
+            detail="会话热度、上下文压力和渠道分布会在首轮快照后补齐。"
+          />
+        ) : !hasSnapshot && state.status === 'error' ? (
+          <CardStateNotice
+            tone="error"
+            title="会话工作台暂不可用"
+            detail={state.error ?? '核心指标请求失败'}
+            onRetry={onRetry}
+          />
+        ) : (
+          <>
+            <div className="session-summary-strip">
+              <span>活跃 {hotSessions}</span>
+              <span>高 ctx {riskySessions}</span>
+              <span>总会话 {sorted.length}</span>
+            </div>
+            {hasSnapshot && state.status === 'loading' ? (
+              <CardStateNotice tone="loading" compact title="正在刷新会话快照" />
+            ) : null}
+            {hasSnapshot && state.status === 'error' ? (
+              <CardStateNotice
+                tone="warning"
+                compact
+                title="当前展示最近一次成功快照"
+                detail={state.error ?? '会话快照刷新失败'}
+                onRetry={onRetry}
+              />
+            ) : null}
+            <div className="session-list">
+              {sorted.length === 0 ? (
+                <div className="empty">当前没有会话</div>
+              ) : (
+                sorted.map((session) => (
+                  <SessionRow
+                    key={session.key}
+                    session={session}
+                    automation={automation}
+                  />
+                ))
+              )}
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
 }
 
-function SessionRow({ session: s }: { session: SessionItem }) {
+function SessionRow({ session: s, automation }: { session: SessionItem; automation?: AutomationSnapshot | null }) {
   const ch = detectChannel(s.key);
-  const meta = getSessionMeta(s);
+  const display = buildSessionDisplay(s, automation);
   const pct = s.percentUsed ?? 0;
   const ctxColor = pct > 70 ? 'var(--danger-strong)' : pct > 40 ? 'var(--warn-strong)' : 'var(--accent-strong)';
   const signals = getSessionSignals(s);
@@ -47,8 +88,8 @@ function SessionRow({ session: s }: { session: SessionItem }) {
     <div className={`session-item${signals.some((signal) => signal.level === 'warning') ? ' is-risky' : ''}`}>
       <div className="session-main-row">
         <span className={`session-channel ${ch}`}>{formatChannelLabel(ch)}</span>
-        <span className="session-key" title={s.key}>{meta.shortKey}</span>
-        <span className={`session-project session-project-${meta.level}`}>{meta.project}</span>
+        <span className="session-key" title={display.technicalKey}>{display.displayName}</span>
+        <span className={`session-project session-project-${display.level}`}>{display.projectLabel}</span>
         <span className="session-tokens">{fmtTokens(s.totalTokens)}</span>
         <div className="ctx-bar">
           <div className="ctx-bar-fill" style={{ width: `${pct}%`, background: ctxColor }} />
@@ -65,7 +106,9 @@ function SessionRow({ session: s }: { session: SessionItem }) {
           ))}
         </div>
       ) : null}
-      <div className="session-note" title={meta.note}>{meta.note}</div>
+      <div className="session-note" title={`${display.note} · ${display.technicalKey}`}>
+        {display.note} · 技术标识 {display.shortTechnicalKey}
+      </div>
     </div>
   );
 }

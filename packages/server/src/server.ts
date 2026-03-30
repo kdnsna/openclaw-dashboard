@@ -9,11 +9,12 @@ import { GatewayClient } from './gateway-client.js';
 import { ActivityTracker } from './activity-tracker.js';
 import { collectMetrics, type DashboardMetrics } from './metrics.js';
 import { collectAcpWorkflow, type AcpWorkflowSnapshot } from './acp-workflow.js';
+import { collectTaskFlow, type TaskFlowSnapshot } from './task-flow.js';
+import { collectTaskEvents, type TaskEventItem } from './task-events.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const UPDATE_INTERVAL_MS = 10000;
 const ACP_UPDATE_INTERVAL_MS = 3000;
-const STARTUP_DELAY_MS = 3000;
 
 // ── Express & WebSocket Setup ──────────────────────────────
 
@@ -46,10 +47,28 @@ app.get('/api/acp-workflow', async (_req, res) => {
   }
 });
 
+app.get('/api/task-flow', async (_req, res) => {
+  try {
+    res.json(await collectTaskFlow());
+  } catch (err) {
+    res.status(500).json({ error: (err as Error).message });
+  }
+});
+
+app.get('/api/task-events', async (_req, res) => {
+  try {
+    res.json(await collectTaskEvents());
+  } catch (err) {
+    res.status(500).json({ error: (err as Error).message });
+  }
+});
+
 // ── WebSocket Push ─────────────────────────────────────────
 
 let latestMetrics: DashboardMetrics | null = null;
 let latestAcpWorkflow: AcpWorkflowSnapshot | null = null;
+let latestTaskFlow: TaskFlowSnapshot | null = null;
+let latestTaskEvents: { generatedAt: string; source: string; events: TaskEventItem[] } | null = null;
 
 wss.on('connection', (ws) => {
   if (latestMetrics) {
@@ -57,6 +76,12 @@ wss.on('connection', (ws) => {
   }
   if (latestAcpWorkflow) {
     ws.send(JSON.stringify({ type: 'acp_workflow', data: latestAcpWorkflow }));
+  }
+  if (latestTaskFlow) {
+    ws.send(JSON.stringify({ type: 'task_flow', data: latestTaskFlow }));
+  }
+  if (latestTaskEvents) {
+    ws.send(JSON.stringify({ type: 'task_events', data: latestTaskEvents }));
   }
 });
 
@@ -91,6 +116,26 @@ async function updateAcpWorkflowLoop(): Promise<void> {
   setTimeout(updateAcpWorkflowLoop, ACP_UPDATE_INTERVAL_MS);
 }
 
+async function updateTaskFlowLoop(): Promise<void> {
+  try {
+    latestTaskFlow = await collectTaskFlow();
+    broadcast({ type: 'task_flow', data: latestTaskFlow });
+  } catch (err) {
+    console.error('[task-flow]', (err as Error).message);
+  }
+  setTimeout(updateTaskFlowLoop, UPDATE_INTERVAL_MS);
+}
+
+async function updateTaskEventsLoop(): Promise<void> {
+  try {
+    latestTaskEvents = await collectTaskEvents();
+    broadcast({ type: 'task_events', data: latestTaskEvents });
+  } catch (err) {
+    console.error('[task-events]', (err as Error).message);
+  }
+  setTimeout(updateTaskEventsLoop, UPDATE_INTERVAL_MS);
+}
+
 // ── Error Handling ─────────────────────────────────────────
 
 process.on('uncaughtException', (err) => console.error('[fatal]', err.message));
@@ -102,6 +147,8 @@ server.listen(config.port, '0.0.0.0', () => {
   console.log(`[dashboard] 🦐 http://0.0.0.0:${config.port}`);
   gw.connect();
   tracker.start();
-  setTimeout(updateLoop, STARTUP_DELAY_MS);
-  setTimeout(updateAcpWorkflowLoop, 1000);
+  void updateLoop();
+  void updateAcpWorkflowLoop();
+  void updateTaskFlowLoop();
+  void updateTaskEventsLoop();
 });

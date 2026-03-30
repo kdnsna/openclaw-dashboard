@@ -62,6 +62,46 @@ export interface AcpWorkflowSnapshot {
   sessions: AcpWorkflowSession[];
 }
 
+export interface TaskFlowSnapshot {
+  generatedAt: string;
+  source: string;
+  tasks: TaskFlowItem[];
+}
+
+export interface TaskFlowItem {
+  taskId: string;
+  title: string;
+  status: 'not_started' | 'in_progress' | 'blocked' | 'waiting_confirmation' | 'completed' | 'paused';
+  priority: 'low' | 'medium' | 'high';
+  stage: string;
+  updatedAt: string | null;
+  startedAt: string | null;
+  currentBlocker: string;
+  nextStep: string;
+  relatedPaths: string[];
+  relatedSessions: string[];
+  relatedCronIds: string[];
+  riskLevel: 'low' | 'medium' | 'high';
+}
+
+export interface TaskEventItem {
+  eventId: string;
+  taskId: string;
+  time: string;
+  type:
+    | 'task_created'
+    | 'progress_update'
+    | 'blocker_detected'
+    | 'decision_made'
+    | 'artifact_created'
+    | 'automation_linked'
+    | 'handoff_prepared'
+    | 'task_completed';
+  label: string;
+  summary: string;
+  severity: 'low' | 'medium' | 'high';
+}
+
 export interface AcpWorkflowStats {
   totalSessions: number;
   activeSessions: number;
@@ -235,4 +275,36 @@ export interface PresenceItem {
   reason?: string;
   host?: string;
   deviceId?: string;
+}
+
+export type DashboardBootState = 'booting' | 'ready' | 'degraded';
+export type DashboardResourceKey = 'metrics' | 'acpWorkflow' | 'taskFlow' | 'taskEvents';
+
+export interface ResourceState {
+  status: 'loading' | 'ready' | 'error';
+  error: string | null;
+  updatedAt: number | null;
+}
+
+export type ResourceStates = Record<DashboardResourceKey, ResourceState>;
+
+export interface SessionDisplayModel {
+  displayName: string;
+  projectLabel: string;
+  note: string;
+  technicalKey: string;
+  shortTechnicalKey: string;
+  level: 'main' | 'automation' | 'chat' | 'system';
+}
+
+export interface AcpSessionDisplayModel {
+  primaryName: string;
+  secondaryName: string;
+  technicalName: string;
+  cwdHint: string;
+}
+
+export interface MetricCopy {
+  label: string;
+  hint: string;
 }

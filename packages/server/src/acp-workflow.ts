@@ -119,11 +119,11 @@ export async function collectAcpWorkflow(now = Date.now()): Promise<AcpWorkflowS
     const indexPath = path.join(config.acpxSessionsDir, 'index.json');
     const indexRaw = fs.readFileSync(indexPath, 'utf8');
     const index = JSON.parse(indexRaw) as { entries?: AcpIndexEntry[] };
-    const entries = [...(index.entries ?? [])]
-      .sort((a, b) => Date.parse(b.lastUsedAt ?? '') - Date.parse(a.lastUsedAt ?? ''))
-      .slice(0, MAX_RECENT_SESSIONS);
+    const entries = [...(index.entries ?? [])].sort((a, b) => Date.parse(b.lastUsedAt ?? '') - Date.parse(a.lastUsedAt ?? ''));
 
-    const sessions = entries.map((entry) => buildWorkflowSession(entry, now)).filter(Boolean) as AcpWorkflowSession[];
+    const sessions = dedupeWorkflowSessions(
+      entries.map((entry) => buildWorkflowSession(entry, now)).filter(Boolean) as AcpWorkflowSession[],
+    ).slice(0, MAX_RECENT_SESSIONS);
     const turnValues = sessions.map((session) => session.latency.turnMs).filter((value): value is number => value != null);
     const toolValues = sessions
       .map((session) => session.toolStats.avgDurationMs)
@@ -158,6 +158,19 @@ export async function collectAcpWorkflow(now = Date.now()): Promise<AcpWorkflowS
       sessions: [],
     };
   }
+}
+
+export function dedupeWorkflowSessions(sessions: AcpWorkflowSession[]): AcpWorkflowSession[] {
+  const winners = new Map<string, AcpWorkflowSession>();
+
+  for (const session of sessions) {
+    const existing = winners.get(session.name);
+    if (!existing || shouldReplaceWorkflowSession(existing, session)) {
+      winners.set(session.name, session);
+    }
+  }
+
+  return [...winners.values()].sort(compareWorkflowSessionRecency);
 }
 
 function buildWorkflowSession(entry: AcpIndexEntry, now: number): AcpWorkflowSession | null {
@@ -441,4 +454,31 @@ function average(values: number[]): number | null {
 
 function stringOrNull(value: unknown): string | null {
   return typeof value === 'string' && value.trim() ? value.trim() : null;
+}
+
+function shouldReplaceWorkflowSession(current: AcpWorkflowSession, candidate: AcpWorkflowSession): boolean {
+  const currentRank = workflowSessionPriority(current);
+  const candidateRank = workflowSessionPriority(candidate);
+
+  if (candidateRank !== currentRank) {
+    return candidateRank > currentRank;
+  }
+
+  return compareIsoDesc(candidate.updatedAt, current.updatedAt) < 0;
+}
+
+function workflowSessionPriority(session: AcpWorkflowSession): number {
+  if (session.status === 'active') return 2;
+  if (session.status === 'error') return 1;
+  return 0;
+}
+
+function compareWorkflowSessionRecency(a: AcpWorkflowSession, b: AcpWorkflowSession): number {
+  const priorityDelta = workflowSessionPriority(b) - workflowSessionPriority(a);
+  if (priorityDelta !== 0) return priorityDelta;
+  return compareIsoDesc(a.updatedAt, b.updatedAt);
+}
+
+function compareIsoDesc(a: string | null, b: string | null): number {
+  return (Date.parse(b ?? '') || 0) - (Date.parse(a ?? '') || 0);
 }
