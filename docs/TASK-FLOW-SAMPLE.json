@@ -1,0 +1,74 @@
+{
+  "generatedAt": "2026-03-30T08:56:00+08:00",
+  "source": "manual-mapping-from-task-cards",
+  "tasks": [
+    {
+      "taskId": "2026-03-ai-morning-briefing-feishu-archive",
+      "title": "把 AI 情报晨报同步归档到飞书知识库",
+      "status": "in_progress",
+      "priority": "high",
+      "stage": "verifying-write-path",
+      "updatedAt": "2026-03-30T08:56:00+08:00",
+      "startedAt": "2026-03-30T08:00:00+08:00",
+      "currentBlocker": "飞书知识库写入的真实调用路径尚未锤实，当前聊天运行面未显式暴露创建文档入口。",
+      "nextStep": "继续验证 feishu-create-doc 的真实调用路径；若不通则补独立归档 cron。",
+      "relatedPaths": [
+        "projects/_ops/tasks/2026-03-ai-morning-briefing-feishu-archive.md",
+        "projects/feishu/AI-MORNING-BRIEFING-DOC-TEMPLATE.md",
+        "projects/feishu/AI-MORNING-BRIEFING-PLAN.md",
+        "projects/dashboard/openclaw-dashboard/RECOVERY.md"
+      ],
+      "relatedSessions": [
+        "agent:main:feishu:direct:ou_ba89889301a266f4ea066f94b2e8c4f5"
+      ],
+      "relatedCronIds": [
+        "f5f3eea2-6e05-43b7-b765-fb1a06b69a52"
+      ],
+      "riskLevel": "medium"
+    },
+    {
+      "taskId": "2026-03-interruption-followup-reminder-rule",
+      "title": "建立中断后自动续办提醒机制",
+      "status": "in_progress",
+      "priority": "high",
+      "stage": "stabilizing-rule",
+      "updatedAt": "2026-03-30T08:56:00+08:00",
+      "startedAt": "2026-03-30T08:35:00+08:00",
+      "currentBlocker": "飞书侧提醒/日程入口尚未真正接入，当前只能先完成苹果提醒事项部分。",
+      "nextStep": "先定型提醒模板，再视需要补统一脚本；飞书侧入口打通后补双写。",
+      "relatedPaths": [
+        "projects/_ops/tasks/2026-03-interruption-followup-reminder-rule.md",
+        "projects/apple-bridge/RECOVERY.md",
+        "projects/apple-bridge/reminder-add.sh",
+        "MEMORY.md"
+      ],
+      "relatedSessions": [
+        "agent:main:feishu:direct:ou_ba89889301a266f4ea066f94b2e8c4f5"
+      ],
+      "relatedCronIds": [],
+      "riskLevel": "medium"
+    },
+    {
+      "taskId": "2026-03-dashboard-task-event-flow",
+      "title": "为小锤子监控台设计任务事件流",
+      "status": "in_progress",
+      "priority": "high",
+      "stage": "drafting-schema",
+      "updatedAt": "2026-03-30T08:56:00+08:00",
+      "startedAt": "2026-03-29T20:00:00+08:00",
+      "currentBlocker": "还没有真正接入监控台 API / 前端展示，目前停留在字段草案和手工样例阶段。",
+      "nextStep": "拿现有 3 个任务继续试跑，评估是否补 /api/task-flow 和 /api/task-events。",
+      "relatedPaths": [
+        "projects/_ops/tasks/2026-03-dashboard-task-event-flow.md",
+        "projects/dashboard/openclaw-dashboard/docs/TASK-EVENT-FLOW-DRAFT.md",
+        "projects/dashboard/openclaw-dashboard/RECOVERY.md",
+        "projects/_ops/tasks/2026-03-agentscope-borrowing-plan.md"
+      ],
+      "relatedSessions": [
+        "agent:main:feishu:direct:ou_ba89889301a266f4ea066f94b2e8c4f5"
+      ],
+      "relatedCronIds": [],
+      "riskLevel": "low"
+    }
+  ]
+}

@@ -18,9 +18,11 @@ import { LifetimeLedgerCard } from './components/LifetimeLedgerCard';
 import { BrandMarkIcon } from './components/BrandMarkIcon';
 import { OverviewTabs } from './components/OverviewTabs';
 import { Footer } from './components/Footer';
+import { TaskFlowCard } from './components/TaskFlowCard';
+import { TaskEventsCard } from './components/TaskEventsCard';
 
 export function App() {
-  const { data, acpWorkflow, wsStatus } = useMetrics();
+  const { data, acpWorkflow, taskFlow, taskEvents, wsStatus, bootState, resourceStates, refreshAll } = useMetrics();
   const { isCollapsed, collapseProgress } = useHeaderCollapse();
   const [view, setView] = useState<'overview' | 'inspect'>('overview');
 
@@ -28,6 +30,10 @@ export function App() {
   const sessions = data?.status?.sessions?.recent ?? [];
   const activeTasks = (activity?.tasks ?? []).filter((task) => task.isActive).length;
   const recentActivityCount = activity?.recent?.length ?? 0;
+  const metricsState = resourceStates.metrics;
+  const acpState = resourceStates.acpWorkflow;
+  const taskFlowState = resourceStates.taskFlow;
+  const taskEventsState = resourceStates.taskEvents;
 
   const viewContent =
     view === 'overview'
@@ -51,7 +57,13 @@ export function App() {
       <div className="dashboard-backdrop" />
       <div className="scanline" />
       <div className={`dashboard${isCollapsed ? ' dashboard-collapsed' : ''}`} style={dashboardStyle}>
-        <Header data={data} isCollapsed={isCollapsed} />
+        <Header
+          data={data}
+          bootState={bootState}
+          resourceStates={resourceStates}
+          wsStatus={wsStatus}
+          isCollapsed={isCollapsed}
+        />
         <section className={`view-switcher${isCollapsed ? ' is-collapsed' : ''}`}>
           <div className="view-copy">
             <div className="view-copy-top">
@@ -74,19 +86,32 @@ export function App() {
                 <p className="section-description">健康、成本、自动化、ACP。</p>
               </div>
               <div className="section-meta">
-                <span>{sessions.length} 个会话</span>
-                <span>{recentActivityCount} 条实时动态</span>
+                <span>{metricsState.status === 'loading' && !data ? '会话同步中' : `${sessions.length} 个会话`}</span>
+                <span>{metricsState.status === 'loading' && !data ? '动态同步中' : `${recentActivityCount} 条实时动态`}</span>
               </div>
             </div>
             <div className="grid grid-overview">
-              <TokenUsageCard usageCost={data?.usageCost} ledger={data?.ledger} />
-              <TodayCard usageCost={data?.usageCost} hourlyActivity={activity?.hourlyActivity} />
-              <AttentionCard data={data} workflow={acpWorkflow} wsStatus={wsStatus} />
-              <CostBreakdownCard totals={data?.usageCost?.totals} />
-              <SystemSummaryCard data={data} workflow={acpWorkflow} wsStatus={wsStatus} />
-              <AutomationStatusCard automation={data?.automation} />
-              <AcpWorkflowSummaryCard workflow={acpWorkflow} />
-              <OfficialDashboardLinksCard info={data?.officialDashboard} />
+              <TokenUsageCard usageCost={data?.usageCost} ledger={data?.ledger} state={metricsState} onRetry={refreshAll} />
+              <TodayCard usageCost={data?.usageCost} hourlyActivity={activity?.hourlyActivity} state={metricsState} onRetry={refreshAll} />
+              <AttentionCard
+                data={data}
+                workflow={acpWorkflow}
+                bootState={bootState}
+                resourceStates={resourceStates}
+                wsStatus={wsStatus}
+              />
+              <CostBreakdownCard totals={data?.usageCost?.totals} state={metricsState} onRetry={refreshAll} />
+              <SystemSummaryCard
+                data={data}
+                workflow={acpWorkflow}
+                bootState={bootState}
+                resourceStates={resourceStates}
+                wsStatus={wsStatus}
+              />
+              <AutomationStatusCard automation={data?.automation} state={metricsState} onRetry={refreshAll} />
+              <TaskFlowCard tasks={taskFlow?.tasks ?? []} state={taskFlowState} onRetry={refreshAll} />
+              <AcpWorkflowSummaryCard workflow={acpWorkflow} state={acpState} onRetry={refreshAll} />
+              <OfficialDashboardLinksCard info={data?.officialDashboard} state={metricsState} onRetry={refreshAll} />
             </div>
           </section>
         ) : (
@@ -98,12 +123,12 @@ export function App() {
                   <p className="section-description">按热度优先看。</p>
                 </div>
                 <div className="section-meta">
-                  <span>运行中任务 {activeTasks}</span>
+                  <span>{metricsState.status === 'loading' && !data ? '任务同步中' : `运行中任务 ${activeTasks}`}</span>
                 </div>
               </div>
               <div className="grid grid-inspect-primary">
-                <SessionsCard sessions={sessions} />
-                <TaskLogCard tasks={activity?.tasks ?? []} />
+                <SessionsCard sessions={sessions} automation={data?.automation} state={metricsState} onRetry={refreshAll} />
+                <TaskLogCard tasks={activity?.tasks ?? []} state={metricsState} onRetry={refreshAll} />
               </div>
             </section>
             <section className="page-section">
@@ -113,12 +138,13 @@ export function App() {
                   <p className="section-description">动态与累计账本。</p>
                 </div>
                 <div className="section-meta">
-                  <span>实时动态 {recentActivityCount}</span>
+                  <span>{metricsState.status === 'loading' && !data ? '动态同步中' : `实时动态 ${recentActivityCount}`}</span>
                 </div>
               </div>
               <div className="grid grid-inspect-secondary">
-                <ActivityCard recent={activity?.recent ?? []} />
-                <LifetimeLedgerCard ledger={data?.ledger} />
+                <ActivityCard recent={activity?.recent ?? []} state={metricsState} onRetry={refreshAll} />
+                <TaskEventsCard events={taskEvents} state={taskEventsState} onRetry={refreshAll} />
+                <LifetimeLedgerCard ledger={data?.ledger} state={metricsState} onRetry={refreshAll} />
               </div>
             </section>
             <section className="page-section">
@@ -128,11 +154,11 @@ export function App() {
                   <p className="section-description">工作流阶段与事件。</p>
                 </div>
                 <div className="section-meta">
-                  <span>活跃工作流 {acpWorkflow?.stats.activeSessions ?? 0}</span>
+                  <span>{acpState.status === 'loading' && !acpWorkflow ? 'ACP 同步中' : `活跃工作流 ${acpWorkflow?.stats.activeSessions ?? 0}`}</span>
                 </div>
               </div>
               <div className="grid grid-workflow">
-                <AcpWorkflowCard workflow={acpWorkflow} />
+                <AcpWorkflowCard workflow={acpWorkflow} state={acpState} onRetry={refreshAll} />
               </div>
             </section>
           </>

@@ -65,7 +65,7 @@ export function fmtDurationBetween(start: string | null | undefined, end?: strin
   return fmtDuration(Math.max(0, endMs - startMs));
 }
 
-const CHANNEL_PREFIXES = ['telegram', 'wecom', 'cron', 'feishu', 'discord'] as const;
+const CHANNEL_PREFIXES = ['telegram', 'wecom', 'cron', 'feishu', 'discord', 'openclaw-weixin', 'weixin'] as const;
 const CHANNEL_LABELS: Record<string, string> = {
   telegram: 'TG',
   webchat: '网页',
@@ -73,6 +73,7 @@ const CHANNEL_LABELS: Record<string, string> = {
   cron: '定时',
   feishu: '飞书',
   discord: '频道',
+  weixin: '微信',
   unknown: '其他',
 };
 
@@ -108,7 +109,9 @@ const AUTOMATION_HEALTH_LABELS: Record<string, string> = {
 export function detectChannel(sessionKey: string): string {
   const key = sessionKey.replace(/^agent:[^:]+:/, '');
   if (key === 'main' || key.startsWith('webchat')) return 'webchat';
-  return CHANNEL_PREFIXES.find((ch) => key.startsWith(ch)) ?? 'unknown';
+  const channel = CHANNEL_PREFIXES.find((item) => key.startsWith(item));
+  if (channel === 'openclaw-weixin') return 'weixin';
+  return channel ?? 'unknown';
 }
 
 export function formatChannelLabel(channel: string): string {

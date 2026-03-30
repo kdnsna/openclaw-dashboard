@@ -8,14 +8,29 @@ import {
   formatWorkflowPhaseLabel,
   formatWorkflowStatusLabel,
 } from '../lib/format';
-import type { AcpWorkflowNode, AcpWorkflowSession, AcpWorkflowSnapshot } from '../lib/types';
+import {
+  buildAcpSessionDisplay,
+  getAcpMetricCopy,
+} from '../lib/dashboard-presenters';
+import type {
+  AcpWorkflowNode,
+  AcpWorkflowSession,
+  AcpWorkflowSnapshot,
+  ResourceState,
+} from '../lib/types';
+import { CardStateNotice } from './CardStateNotice';
 
 interface AcpWorkflowCardProps {
   workflow: AcpWorkflowSnapshot | null;
+  state: ResourceState;
+  onRetry?: () => void;
 }
 
-export function AcpWorkflowCard({ workflow }: AcpWorkflowCardProps) {
+export function AcpWorkflowCard({ workflow, state, onRetry }: AcpWorkflowCardProps) {
   const sessions = workflow?.sessions ?? [];
+  const hasSnapshot = Boolean(workflow);
+  const turnMetricCopy = getAcpMetricCopy('turn');
+  const toolMetricCopy = getAcpMetricCopy('tool');
 
   return (
     <div className="card workflow-card span-full">
@@ -27,19 +42,47 @@ export function AcpWorkflowCard({ workflow }: AcpWorkflowCardProps) {
         </span>
       </div>
       <div className="card-body">
-        {!workflow ? (
-          <div className="empty">正在加载 ACP 工作流…</div>
-        ) : !workflow.available ? (
-          <div className="empty">ACP 数据暂不可用：{workflow.error ?? '未找到会话索引'}</div>
+        {!hasSnapshot && state.status === 'loading' ? (
+          <CardStateNotice
+            tone="loading"
+            title="正在同步 ACP 深查"
+            detail="工作流阶段、节点轨迹和耗时统计会在首轮 ACP 快照返回后补齐。"
+          />
+        ) : !hasSnapshot && state.status === 'error' ? (
+          <CardStateNotice
+            tone="error"
+            title="ACP 深查暂不可用"
+            detail={state.error ?? 'ACP 工作流请求失败'}
+            onRetry={onRetry}
+          />
+        ) : !workflow?.available ? (
+          <CardStateNotice
+            tone="error"
+            title="ACP 数据暂不可用"
+            detail={workflow?.error ?? '未找到会话索引'}
+            onRetry={onRetry}
+          />
         ) : sessions.length === 0 ? (
           <div className="empty">暂无 ACP 工作流会话</div>
         ) : (
           <>
+            {hasSnapshot && state.status === 'loading' ? (
+              <CardStateNotice tone="loading" compact title="正在刷新 ACP 深查" />
+            ) : null}
+            {hasSnapshot && state.status === 'error' ? (
+              <CardStateNotice
+                tone="warning"
+                compact
+                title="当前展示最近一次成功快照"
+                detail={state.error ?? 'ACP 深查刷新失败'}
+                onRetry={onRetry}
+              />
+            ) : null}
             <div className="workflow-summary">
               <Metric label="活跃会话" value={String(workflow.stats.activeSessions)} accent="cyan" />
               <Metric label="流转次数" value={String(workflow.stats.transitions)} accent="green" />
-              <Metric label="平均轮次耗时" value={formatMs(workflow.stats.avgTurnMs)} accent="cyan" />
-              <Metric label="平均工具耗时" value={formatMs(workflow.stats.avgToolMs)} accent="purple" />
+              <Metric label={turnMetricCopy.label} hint={turnMetricCopy.hint} value={formatMs(workflow.stats.avgTurnMs)} accent="cyan" />
+              <Metric label={toolMetricCopy.label} hint={toolMetricCopy.hint} value={formatMs(workflow.stats.avgToolMs)} accent="purple" />
             </div>
 
             <div className="workflow-session-grid">
@@ -56,13 +99,15 @@ export function AcpWorkflowCard({ workflow }: AcpWorkflowCardProps) {
 
 function WorkflowSessionCard({ session }: { session: AcpWorkflowSession }) {
   const updatedAgo = session.updatedAt ? timeAgo(Date.now() - Date.parse(session.updatedAt)) : '--';
+  const display = buildAcpSessionDisplay(session);
 
   return (
     <div className={`workflow-session-card state-${session.status}`}>
       <div className="workflow-session-header">
         <div className="workflow-session-main">
-          <div className="workflow-session-name">{shortName(session.name)}</div>
-          <div className="workflow-session-cwd">{shortCwd(session.cwd)}</div>
+          <div className="workflow-session-name" title={display.technicalName}>{display.primaryName}</div>
+          <div className="workflow-session-secondary" title={display.technicalName}>{display.secondaryName}</div>
+          <div className="workflow-session-cwd" title={session.cwd}>{display.cwdHint}</div>
         </div>
         <div className={`workflow-session-status status-${session.status}`}>
           {formatWorkflowStatusLabel(session.status)}
@@ -149,10 +194,20 @@ function hasSeenNext(nodes: AcpWorkflowNode[], index: number): boolean {
   return current?.status !== 'idle' && next?.status !== 'idle';
 }
 
-function Metric({ label, value, accent }: { label: string; value: string; accent: 'cyan' | 'green' | 'purple' }) {
+function Metric({
+  label,
+  hint,
+  value,
+  accent,
+}: {
+  label: string;
+  hint?: string;
+  value: string;
+  accent: 'cyan' | 'green' | 'purple';
+}) {
   return (
     <div className={`workflow-metric accent-${accent}`}>
-      <span className="workflow-metric-label">{label}</span>
+      <span className="workflow-metric-label" title={hint}>{label}</span>
       <span className="workflow-metric-value">{value}</span>
     </div>
   );
@@ -160,12 +215,4 @@ function Metric({ label, value, accent }: { label: string; value: string; accent
 
 function formatMs(ms: number | null): string {
   return fmtDuration(ms);
-}
-
-function shortName(name: string): string {
-  return name.replace(/^agent:[^:]+:acp:/, '').slice(0, 24);
-}
-
-function shortCwd(cwd: string): string {
-  return cwd.replace(/^.*\.openclaw\/workspace\//, '').replace(/^\/Users\/[^/]+\//, '~/').slice(0, 36);
 }

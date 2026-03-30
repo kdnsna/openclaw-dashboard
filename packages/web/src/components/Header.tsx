@@ -1,15 +1,25 @@
 import { useClock } from '../hooks/useClock';
-import type { DashboardMetrics, ChannelHealth } from '../lib/types';
+import type {
+  DashboardBootState,
+  DashboardMetrics,
+  ChannelHealth,
+  ResourceStates,
+} from '../lib/types';
+import type { WsStatus } from '../hooks/useMetrics';
 import { APP_VERSION } from '../lib/appVersion';
+import { listUnavailableResources } from '../lib/resource-state-copy';
 import { BrandMarkIcon } from './BrandMarkIcon';
 import { HeaderStatusGroup } from './HeaderStatusGroup';
 
 interface HeaderProps {
   data: DashboardMetrics | null;
+  bootState: DashboardBootState;
+  resourceStates: ResourceStates;
+  wsStatus: WsStatus;
   isCollapsed?: boolean;
 }
 
-export function Header({ data, isCollapsed = false }: HeaderProps) {
+export function Header({ data, bootState, resourceStates, wsStatus, isCollapsed = false }: HeaderProps) {
   const clock = useClock();
 
   const health = data?.health;
@@ -18,12 +28,32 @@ export function Header({ data, isCollapsed = false }: HeaderProps) {
   const stats = data?.activity?.stats;
   const sessions = status?.sessions?.recent ?? [];
 
+  const unavailableResources = listUnavailableResources(resourceStates);
+
   let healthClass = 'disconnected';
   let healthLabel = '等待数据';
-  if (health) {
+  if (bootState === 'booting') {
+    healthClass = 'degraded';
+    healthLabel = '首轮同步中';
+  } else if (bootState === 'degraded') {
+    healthClass = 'degraded';
+    healthLabel = unavailableResources.length > 0 ? '部分降级' : '同步波动';
+  } else if (health) {
     healthClass = health.ok ? 'healthy' : 'degraded';
     healthLabel = health.ok ? '健康' : '降级';
+  } else if (wsStatus === 'offline') {
+    healthClass = 'disconnected';
+    healthLabel = '离线';
   }
+
+  const subtitle =
+    bootState === 'booting'
+      ? '正在连接监控源并同步首轮快照'
+      : bootState === 'degraded'
+        ? `部分数据暂未到位：${unavailableResources.join(' / ') || '请稍后重试'}`
+        : wsStatus === 'connecting'
+          ? '实时链路重连中，当前展示最近一次快照'
+          : 'OpenClaw / ACP / 自动化总览';
 
   const channelItems = Object.entries(health?.channels ?? {}).map(([name, ch]) => {
     const { probe, configured } = ch as ChannelHealth;
@@ -80,7 +110,7 @@ export function Header({ data, isCollapsed = false }: HeaderProps) {
           <div className="header-brand">
             <span className="header-kicker">HAMMER WATCH / AI OPS</span>
             <h1>小锤子监控台</h1>
-            <span className="header-subtitle">OpenClaw / ACP / 自动化总览</span>
+            <span className="header-subtitle" title={subtitle}>{subtitle}</span>
           </div>
           <span className="version">v{APP_VERSION}</span>
         </div>

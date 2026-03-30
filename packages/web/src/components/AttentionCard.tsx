@@ -1,10 +1,18 @@
 import { fmtCost, fmtTokens } from '../lib/format';
-import type { AcpWorkflowSnapshot, DashboardMetrics } from '../lib/types';
+import { listUnavailableResources } from '../lib/resource-state-copy';
+import type {
+  AcpWorkflowSnapshot,
+  DashboardBootState,
+  DashboardMetrics,
+  ResourceStates,
+} from '../lib/types';
 import type { WsStatus } from '../hooks/useMetrics';
 
 interface AttentionCardProps {
   data: DashboardMetrics | null;
   workflow: AcpWorkflowSnapshot | null;
+  bootState: DashboardBootState;
+  resourceStates: ResourceStates;
   wsStatus: WsStatus;
 }
 
@@ -16,8 +24,8 @@ interface AttentionItem {
   detail: string;
 }
 
-export function AttentionCard({ data, workflow, wsStatus }: AttentionCardProps) {
-  const items = buildAttentionItems(data, workflow, wsStatus);
+export function AttentionCard({ data, workflow, bootState, resourceStates, wsStatus }: AttentionCardProps) {
+  const items = buildAttentionItems(data, workflow, bootState, resourceStates, wsStatus);
   const highCount = items.filter((item) => item.level === 'high').length;
   const headline = highCount > 0 ? '需要立即关注' : items.some((item) => item.level === 'medium') ? '建议稍后处理' : '当前整体平稳';
 
@@ -53,18 +61,22 @@ export function AttentionCard({ data, workflow, wsStatus }: AttentionCardProps) 
 function buildAttentionItems(
   data: DashboardMetrics | null,
   workflow: AcpWorkflowSnapshot | null,
+  bootState: DashboardBootState,
+  resourceStates: ResourceStates,
   wsStatus: WsStatus,
 ): AttentionItem[] {
   const items: AttentionItem[] = [];
   const sessions = data?.status?.sessions?.recent ?? [];
   const tasks = data?.activity?.tasks ?? [];
-  const today = data?.usageCost?.daily?.at(-1);
+  const dailyUsage = data?.usageCost?.daily ?? [];
+  const today = dailyUsage.length > 0 ? dailyUsage[dailyUsage.length - 1] : undefined;
   const failingJobs = data?.automation?.failingJobs ?? 0;
   const warningJobs = data?.automation?.warningJobs ?? 0;
   const highCtxSessions = sessions.filter((session) => (session.percentUsed ?? 0) >= 75);
   const hotSessions = sessions.filter((session) => (session.age ?? Number.POSITIVE_INFINITY) <= 15 * 60 * 1000);
   const activeTasks = tasks.filter((task) => task.isActive);
   const workflowErrors = workflow?.sessions.filter((session) => session.status === 'error') ?? [];
+  const unavailableResources = listUnavailableResources(resourceStates);
   const avgDailyCost = average(
     (data?.usageCost?.daily ?? [])
       .slice(-7)
@@ -72,17 +84,42 @@ function buildAttentionItems(
       .filter((value) => value > 0),
   );
 
-  if (!data?.gwConnected || wsStatus === 'offline') {
+  if (bootState === 'booting') {
+    items.push({
+      level: 'medium',
+      title: '正在同步首轮快照',
+      detail: '启动阶段会先拉取一轮 REST 快照，再接入实时推送；此时不视为高优故障。',
+    });
+  } else if (wsStatus === 'offline') {
     items.push({
       level: 'high',
-      title: '监控链路已离线',
-      detail: '当前前端或网关链路未处于 live 状态，先确认 3210 与 18789 两侧连接是否正常。',
+      title: '监控链路暂时离线',
+      detail:
+        unavailableResources.length > 0
+          ? `当前不可用的数据源：${unavailableResources.join(' / ')}。建议先确认 3210 与网关侧链路状态。`
+          : '当前前端或网关链路未处于 live 状态，建议先确认 3210 与网关侧连接。',
     });
   } else if (wsStatus === 'connecting') {
     items.push({
       level: 'medium',
       title: '实时链路正在重连',
       detail: '指标会在 fallback 轮询里继续刷新，但实时推送暂时不稳定。',
+    });
+  }
+
+  if (bootState === 'degraded' && unavailableResources.length > 0) {
+    items.push({
+      level: 'medium',
+      title: '部分数据源暂未同步成功',
+      detail: `当前仍可查看已成功快照，未到位的数据源包括：${unavailableResources.join(' / ')}。`,
+    });
+  }
+
+  if (bootState !== 'booting' && data && !data.gwConnected) {
+    items.push({
+      level: 'high',
+      title: '网关连接未建立',
+      detail: '当前主监控快照已返回，但网关仍显示未连接，建议同时检查官方 Dashboard 与底层进程。',
     });
   }
 
